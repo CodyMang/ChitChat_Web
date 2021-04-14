@@ -14,8 +14,7 @@ public class ChatController {
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
-        int random =(int)((Math.random() * (4 - 1)) + 1);
-        DatabaseConnector.storeMessage(chatMessage.getContent(),Integer.toString(random),"1");
+        DatabaseConnector.storeMessage(chatMessage.getContent(),chatMessage.getSender_id(),chatMessage.getChat_id());
         return chatMessage;
     }
 
@@ -23,7 +22,6 @@ public class ChatController {
     @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ChatMessage chatMessage,
                                SimpMessageHeaderAccessor headerAccessor) {
-        // Add username in web socket session
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         return chatMessage;
     }
