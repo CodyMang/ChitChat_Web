@@ -38,21 +38,29 @@ CREATE TABLE message (
 );  
 
 
-SELECT * FROM users;
-UPDATE users SET username = "Cody" Where user_id = 1;
 
+SELECT * FROM users;
 select * from group_users;
 select * from message;
+select * from chats;
+insert into chats set chat_name = "A group of friends", size= 1;
+insert into message set chat_id = 6, user_id=8, content="what is up dawg";
+insert into group_users set chat_id = 5, user_id = 7;
 
-insert into group_users set chat_id = 1, user_id=16, content="hello this is an original message";
 SELECT C.chat_name, C.chat_id
 FROM group_users as GU, chats as C
-WHERE GU.chat_id = C.Chat_id and GU.user_id = 1
+WHERE GU.chat_id = C.Chat_id and GU.user_id = 7
 group by C.chat_name;
-
+insert into group_users set chat_id = (
+SELECT chat_id
+FROM chats
+WHERE chat_name = "First Chat"), user_id = 7;
 insert into message set chat_id = , user_id=16;
 
-
+SELECT U.username, M.content 
+                    FROM message AS M, users as U 
+                    WHERE U.user_id = M.user_id AND chat_id = 5
+                    ORDER BY M.time_stamp;
 SELECT C.chat_name, C.chat_id 
                     FROM group_users as GU, chats as C 
                     WHERE GU.chat_id = C.Chat_id and GU.user_id = 16

@@ -160,5 +160,69 @@ public class DatabaseConnector {
         return "404";
     }
 
+    public static String insertNewChat(String chat_name,String user_id) {
+        try {
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
+
+            String query = "insert into chats set chat_name = ?, size= 1;";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, chat_name);
+            stmt.execute();
+            query = "INSERT INTO group_users SET chat_id = (" +
+                    "SELECT chat_id " +
+                    "FROM chats " +
+                    "WHERE chat_name = ? ), user_id = ?;";
+            stmt = con.prepareStatement(query);
+            stmt.setString(1, chat_name);
+            stmt.setString(2, user_id);
+            stmt.execute();
+            stmt.close();
+            con.close();
+            return ("204");
+        }
+        catch(java.sql.SQLIntegrityConstraintViolationException e) {
+            return "409";
+        }
+        catch (Exception e) {
+            System.err.println("SQL insertNewChat Error");
+            e.printStackTrace();
+        }
+        return "404";
+    }
+
+    public static String joinNewChat(String chat_name,String user_id) {
+        try {
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
+
+            String query = "SELECT chat_id FROM chats WHERE chat_name = ?;";
+
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, chat_name);
+            ResultSet set = stmt.executeQuery();
+            if(set.next())
+            {
+                String result = set.getString("chat_id");
+                query = "INSERT INTO group_users SET chat_id = ?, user_id = ?;";
+                stmt = con.prepareStatement(query);
+                stmt.setString(1, result);
+                stmt.setString(2, user_id);
+                stmt.execute();
+            }
+
+            set.close();
+            stmt.close();
+            con.close();
+            return ("204");
+        }
+        catch(java.sql.SQLIntegrityConstraintViolationException e) {
+            return "409";
+        }
+        catch (Exception e) {
+            System.err.println("SQL insertNewChat Error");
+            e.printStackTrace();
+        }
+        return "404";
+    }
+
 
 }

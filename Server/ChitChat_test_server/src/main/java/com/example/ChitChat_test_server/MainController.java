@@ -58,16 +58,42 @@ class MainController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @CrossOrigin
+    @PostMapping("/createNewChat")
+    ResponseEntity<String> creatChat(@RequestBody Map<String,String> allParams) {
+        System.out.println("Recieveing New chat Request");
+        String res = DatabaseConnector.insertNewChat(allParams.get("chat_name"),
+                allParams.get("user_id"));
+
+        if(res.equals("409"))
+        {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        else if(res.equals("204"))
+        {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);//Nothing is returned
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @CrossOrigin
+    @PostMapping("/joinChatByUser")
+    ResponseEntity<String> joinChatByUser(@RequestBody Map<String,String> allParams) {
+        System.out.println("Recieveing New chat Request");
+        String res = DatabaseConnector.joinNewChat(allParams.get("chat_name"),
+                allParams.get("user_id"));
+
+        if(res.equals("409"))
+        {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        else if(res.equals("204"))
+        {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);//Nothing is returned
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
 }
-//
-//
-//@ResponseStatus(value = HttpStatus.CONFLICT)
-//class DuplicateError extends RuntimeException {
-//    public DuplicateError(String message)
-//    {
-//        super(message);
-//    }
-//}
 
 
