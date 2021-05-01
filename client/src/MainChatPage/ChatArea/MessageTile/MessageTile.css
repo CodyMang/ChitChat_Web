@@ -1,0 +1,51 @@
+.message-container{
+    
+    width:auto;
+    height:auto;
+    min-height:50px;
+    padding:10px;
+    display:grid;
+    grid-template-columns:50px auto;
+    grid-template-rows:auto auto;
+    grid-row-gap: 10px;
+}
+
+.message-container:hover{
+    background: rgb(220, 220, 220);
+}
+
+.message-container .username{
+    font-size: 20px;
+    color: 	#4682B4;
+    grid-column-start: 2;
+    grid-row-start: 1;
+}
+
+.message-container .content{
+    height:auto;
+    font-size: 18px;
+    grid-column-start: 2;
+    grid-row-start: 2;
+    display:flex;
+    flex-grow: 1;
+
+}
+.more-horizon{
+    float:inline-start;
+    grid-column-start: 1;
+    grid-row-start:1;
+    grid-row-end: 1;
+}
+.delete-button
+{
+    grid-column-start: 1;
+    grid-row-start:2;
+}
+
+ .more-horizon:hover{
+    color:#4682B4;
+}
+
+.delete-button:hover{
+    color: 	#DC143C;
+}

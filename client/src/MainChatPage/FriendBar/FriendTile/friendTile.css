@@ -1,0 +1,31 @@
+.tile-container {
+  width: auto;
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  user-select: none;
+  align-items: center;
+}
+
+.tile-container .focused {
+  background-color: green;
+}
+
+.tile-container .image {
+  width: auto;
+}
+.tile-container .username {
+  width: auto;
+  font-size: 18px;
+}
+
+.tile-container .text-box {
+  height: auto;
+}
+
+.tile-container:hover {
+  background: rgb(220, 220, 220);
+  cursor: pointer;
+}
