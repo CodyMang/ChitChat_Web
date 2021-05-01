@@ -36,7 +36,7 @@ public class DatabaseConnector {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
-            String query = "SELECT U.username, M.content " +
+            String query = "SELECT U.username, M.content, M.message_id " +
                     "FROM message AS M, users as U " +
                     "WHERE U.user_id = M.user_id AND chat_id = ? " +
                     "ORDER BY M.time_stamp";
@@ -49,6 +49,7 @@ public class DatabaseConnector {
                 row = new JsonObject();
                 row.addProperty("username", set.getString("username"));
                 row.addProperty("content", set.getString("content"));
+                row.addProperty("message_id", set.getString("message_id"));
                 result.add(row);
             }
             stmt.close();
@@ -221,6 +222,118 @@ public class DatabaseConnector {
             System.err.println("SQL insertNewChat Error");
             e.printStackTrace();
         }
+        return "404";
+    }
+    public static String insertNewPassword(String userName,String pass)
+    {
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+
+            PreparedStatement stmt = con.prepareStatement("UPDATE users SET pass= ?  WHERE username= ?");
+            stmt.setString(1,pass);
+            stmt.setString(2,userName);
+
+            stmt.execute();
+
+
+            stmt.close();
+            con.close();
+
+        }
+        catch(Exception e)
+        {
+            System.err.println("SQL Database:UserExists Error");
+            e.printStackTrace();
+        }
+
+    return "404";
+    }
+
+    public static boolean userEmailExist(String userName,String email)
+    {
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            //here Chitchat_db is database name, root is username and password
+
+            PreparedStatement stmt = con.prepareStatement("SELECT * FROM users WHERE username= ? and email= ?");
+            stmt.setString(1,userName);
+            stmt.setString(2,email);
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+
+            boolean result = rs.getString("username").equals(userName) && rs.getString("email").equals(email);
+
+            rs.close();
+            stmt.close();
+            con.close();
+            return result;
+        }
+        catch(Exception e)
+        {
+            System.err.println("SQL Database:UserExists Error");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static String deleteMessageByid(String message_id)
+    {
+        System.out.println("DELETING ID: "+message_id );
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+
+            PreparedStatement stmt = con.prepareStatement("DELETE FROM message WHERE message_id = ?");
+            stmt.setString(1,message_id);
+            stmt.execute();
+            stmt.close();
+            con.close();
+            return "200";
+        }
+        catch(Exception e)
+        {
+            System.err.println("SQL Database:UserExists Error");
+            e.printStackTrace();
+        }
+
+        return "404";
+    }
+
+    public static String updateMessageByid(String message_id,String content)
+    {
+        System.out.println("UPDATING MESSAGE ID: "+message_id+ " to new content " +content);
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+
+            PreparedStatement stmt = con.prepareStatement("UPDATE message " +
+                    "SET content = ? " +
+                    "WHERE message_id = ?;");
+
+            stmt.setString(1,content);
+            stmt.setString(2,message_id);
+
+            stmt.execute();
+            stmt.close();
+            con.close();
+            return "200";
+        }
+        catch(Exception e)
+        {
+            System.err.println("SQL Database:update Chat Error");
+            e.printStackTrace();
+        }
+
         return "404";
     }
 

@@ -2,47 +2,54 @@ package com.example.ChitChat_test_server;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import com.example.ChitChat_test_server.databaseConnection.DatabaseConnector;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import javax.print.DocFlavor;
+import java.util.ArrayList;
+import java.util.HashMap;
 @Controller
 public class ChatController {
 
 
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
+    public static ArrayList<String> activeUsers = new ArrayList<>();
 
     @MessageMapping("/chat.sendMessage/{chat_id}")
-    //@SendTo("/topic/public/{chat_id}")
     public void sendMessage(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
         System.out.println("Message recieved at " + chat_id);
-        DatabaseConnector.storeMessage(chatMessage.getContent(),chatMessage.getSender_id(),chat_id);
-        messagingTemplate.convertAndSend("/channel/"+chat_id, chatMessage);
-        //return chatMessage;
+        DatabaseConnector.storeMessage(chatMessage.getContent(), chatMessage.getSender_id(), chat_id);
+        messagingTemplate.convertAndSend("/channel/" + chat_id, chatMessage);
     }
 
     @MessageMapping("/chat.addUser/{chat_id}")
-    //@SendTo("/topic/public/{chat_id}")
     public void addUser(@Payload ChatMessage chatMessage,
                                SimpMessageHeaderAccessor headerAccessor,
                                @DestinationVariable String chat_id) {
-
+        activeUsers.add(chatMessage.getSender());
         String currentRoomId = (String) headerAccessor.getSessionAttributes().put("chat_id",chat_id);
-        if (currentRoomId != null) {
-            ChatMessage leaveMessage = new ChatMessage();
-            leaveMessage.setType(ChatMessage.MessageType.LEAVE);
-            leaveMessage.setSender(chatMessage.getSender());
-            messagingTemplate.convertAndSend("/channel/"+currentRoomId, leaveMessage);
-        }
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
+        chatMessage.setUsers(activeUsers);
         messagingTemplate.convertAndSend("/channel/" + chat_id, chatMessage);
-        //return chatMessage;
     }
+
+    @MessageMapping("/chat.update/{chat_id}")
+    public void updateMessage(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
+        System.out.println(chatMessage.getType());
+        System.out.println(chatMessage.getContent());
+        messagingTemplate.convertAndSend("/channel/"+chat_id, chatMessage);
+    }
+
+
 
 }

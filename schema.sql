@@ -39,6 +39,9 @@ CREATE TABLE message (
 
 
 
+UPDATE message 
+SET content = "new" 
+WHERE message_id = 96;
 SELECT * FROM users;
 select * from group_users;
 select * from message;
@@ -46,6 +49,10 @@ select * from chats;
 insert into chats set chat_name = "A group of friends", size= 1;
 insert into message set chat_id = 6, user_id=8, content="what is up dawg";
 insert into group_users set chat_id = 5, user_id = 7;
+
+UPDATE message
+SET content = "CHANGED"
+WHERE message_id = 117;
 
 SELECT C.chat_name, C.chat_id
 FROM group_users as GU, chats as C
