@@ -3,7 +3,6 @@ import AttachFileIcon from "@material-ui/icons/AttachFile";
 import SendIcon from "@material-ui/icons/Send";
 import MessageTile from './MessageTile/MessageTile.js'
 import SockJsClient from 'react-stomp';
-import useFetch from 'use-http'
 import "./ChatArea.css";
 
 class ChatArea extends React.Component {
