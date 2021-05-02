@@ -1,3 +1,5 @@
+create database ChitChat_DB;
+
 CREATE TABLE users (
   user_id int NOT NULL auto_increment,
   username VARCHAR(60) NOT NULL UNIQUE,
@@ -8,19 +10,12 @@ CREATE TABLE users (
   is_active boolean DEFAULT false,
   PRIMARY KEY(user_id)
 );
+
 CREATE TABLE Friends (
 	user_id1 int not NULL,
     user_id2 int not NULL,
 	FOREIGN KEY (user_id1) REFERENCES users(user_id),
     FOREIGN KEY (user_id2) REFERENCES users(user_id)
-);
-
-CREATE TABLE Files(
-	message_id int not null,
-	file_name Varchar(100) not null,
-    file_type varchar(15) not null,
-    data blob not null,
-    FOREIGN KEY (message_id) REFERENCES message(message_id)
 );
 
 CREATE TABLE chats (
@@ -47,3 +42,11 @@ CREATE TABLE message (
   FOREIGN KEY (chat_id) REFERENCES chats (chat_id),
   FOREIGN KEY (user_id) REFERENCES users (user_id)    
 );  
+
+CREATE TABLE Files(
+	message_id int not null,
+	file_name Varchar(100) not null,
+    file_type varchar(15) not null,
+    data blob not null,
+    FOREIGN KEY (message_id) REFERENCES message(message_id)
+);
