@@ -44,9 +44,9 @@ CREATE TABLE message (
 );  
 
 CREATE TABLE Files(
-	message_id bigint not null,
+	message_id bigint unsigned not null,
 	file_name Varchar(100) not null,
-    file_type varchar(15) not null,
-    data blob not null,
-    FOREIGN KEY (message_id) REFERENCES message(message_id)
+    	file_type varchar(15) not null,
+    	data blob not null,
+    	FOREIGN KEY (message_id) REFERENCES message(message_id)
 );
