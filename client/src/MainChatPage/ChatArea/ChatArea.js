@@ -14,8 +14,11 @@ class ChatArea extends React.Component {
       chat_id: this.props.chat_id,
       sendBoxContent: '',
       messages: [],
-      activeUsers:[]
+      topics:this.props.conversations.map((elem) => (`/channel/${elem.chat_id}`)),
+      activeUsers:[],
+      unreadChats:[],
     };
+    console.log(this.state.topics);
     this.keyPressed = this.keyPressed.bind(this);
     this.sendMessageClient = this.sendMessageClient.bind(this);
     this.sendJoin = this.sendJoin.bind(this);
@@ -25,27 +28,28 @@ class ChatArea extends React.Component {
   onMessageRecieve(msg) {
     console.log(msg)
     if (msg) {
-      if (msg.type === "CHAT") {
-        let newMessage = {
-          "username": msg.sender,
-          "content": msg.content
-        };
-        this.setState({
-          messages: [...this.state.messages, newMessage],
-        });
+      if (msg.type === "CHAT" ) {
+        if(msg.chat_id == this.state.chat_id)
+        {
+          let newMessage = {
+            "username": msg.sender,
+            "content": msg.content
+          };
+          this.setState({
+            messages: [...this.state.messages, newMessage],
+          });
+        }
+        else
+        {
+          this.setState({
+            unread: [...this.state.unread,msg.chat_id],
+          });
+        }
       }
       else if (msg.type === "JOIN") {
-        
           this.setState({
             activeUsers:msg.users,
           });
-        // }
-        // else
-        // {
-        // this.setState({
-        //   activeUsers: [...this.state.activeUsers, msg.sender],
-        // });
-        // }
       }
       else if (msg.type === "LEAVE") {
         var array = [...this.state.activeUsers]; // make a separate copy of the array
@@ -185,7 +189,7 @@ class ChatArea extends React.Component {
           </div>
         </div>
         <SockJsClient url='http://localhost:8080/ws'
-          topics={[`/channel/${this.props.chat_id}`]}
+          topics={this.state.topics}
           onMessage={(msg) => { this.onMessageRecieve(msg) }}
           ref={(client) => { this.clientRef = client }}
           onConnect={this.sendJoin}

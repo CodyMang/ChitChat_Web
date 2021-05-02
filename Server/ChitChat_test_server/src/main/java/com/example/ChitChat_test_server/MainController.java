@@ -161,8 +161,24 @@ class MainController {
         {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);//Nothing is returned
         }
-
     }
+
+
+    // @CrossOrigin
+    // @PostMapping("/AddFriend")
+    // ResponseEntity<String> updateMessage(@RequestBody Map<String,String> allParams) {
+    //     System.out.println("UPDATING");
+    //     String res = DatabaseConnector.updateMessageByid(allParams.get("message_id"),allParams.get("content"));
+
+    //     if(res.equals("200"))
+    //     {
+    //         return new ResponseEntity<>(HttpStatus.OK);
+    //     }
+    //     else
+    //     {
+    //         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);//Nothing is returned
+    //     }
+    // }
 
 }
 

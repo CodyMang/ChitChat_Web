@@ -43,14 +43,16 @@ class MainPage extends React.Component {
     return (
       <div className="main-container">
           <Navbar username={this.state.username} />
-          <FriendBar conversations = {this.state.conversations} 
+          <FriendBar 
+           conversations = {this.state.conversations} 
            chat_id={this.state.chat_id} 
            user_id ={this.state.user_id} 
            click={this.updateChat}
            onNewChat={this.fetchChatList}/>
           <ChatArea user_id = {this.state.user_id} 
           username = {this.state.username}
-          chat_id={this.state.chat_id}/>
+          chat_id={this.state.chat_id}
+          conversations = {this.state.conversations}/>
       </div>
     );
   }

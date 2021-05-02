@@ -45,8 +45,6 @@ public class ChatController {
 
     @MessageMapping("/chat.update/{chat_id}")
     public void updateMessage(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
-        System.out.println(chatMessage.getType());
-        System.out.println(chatMessage.getContent());
         messagingTemplate.convertAndSend("/channel/"+chat_id, chatMessage);
     }
 
