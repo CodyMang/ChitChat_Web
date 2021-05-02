@@ -156,7 +156,7 @@ class ChatArea extends React.Component {
         </div>
         <div className='current-userlist'>
           <div className="active-user-list-header">
-            <span>Active Users</span>
+            <span>Members</span>
           </div>
           
           <div className="active-user-container">

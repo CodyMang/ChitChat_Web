@@ -22,7 +22,7 @@ export default function Sidebar(props) {
     const [joinOpen, setJoinOpen] = React.useState(false);
     const [joinChat, setJoinChat] = React.useState("");
     const [name, setName] = React.useState("");
-    
+
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -88,7 +88,7 @@ export default function Sidebar(props) {
         <div className="sidebar-container">
             <div className="FriendHeader">
                 <span>Conversations</span>
-                <ForumIcon onClick={()=>setJoinOpen(true)} className='new-chat-icon' />
+                <ForumIcon onClick={() => setJoinOpen(true)} className='new-chat-icon' />
                 <AddRoundedIcon onClick={handleClickOpen} className='new-chat-icon' />
                 <div>
 
@@ -107,7 +107,7 @@ export default function Sidebar(props) {
                                 type="text"
                                 fullWidth
                                 value={name}
-                                onChange={(event) => {  setName(event.target.value) }}
+                                onChange={(event) => { setName(event.target.value) }}
                             />
 
                         </DialogContent>
@@ -121,7 +121,7 @@ export default function Sidebar(props) {
                             </Button>
                         </DialogActions>
                     </Dialog>
-                    <Dialog open={joinOpen} onClose={()=>setJoinOpen(false)} aria-labelledby="form-dialog-title">
+                    <Dialog open={joinOpen} onClose={() => setJoinOpen(false)} aria-labelledby="form-dialog-title">
                         <DialogTitle id="form-dialog-title">Join a Chat</DialogTitle>
                         <DialogContent>
 
@@ -139,7 +139,7 @@ export default function Sidebar(props) {
 
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={()=>setJoinOpen(false)} color="primary">
+                            <Button onClick={() => setJoinOpen(false)} color="primary">
                                 Cancel
                             </Button>
 
