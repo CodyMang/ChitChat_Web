@@ -30,7 +30,6 @@ public class DatabaseConnector {
         }
     }
 
-
     public static String getMessagesFromChat(String chat_id) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -107,14 +106,37 @@ public class DatabaseConnector {
             ResultSet set = stmt.executeQuery();
             JsonArray result = new JsonArray();
             JsonObject row;
-
+            String user_id = "";
             while (set.next()) {
                 row = new JsonObject();
-                row.addProperty("user_id", set.getString("user_id"));
+                user_id = set.getString("user_id");
+                row.addProperty("user_id", user_id);
                 row.addProperty("username", set.getString("username"));
                 result.add(row);
             }
+            if(result.size() == 0)
+            {
+                set.close();
+                stmt.close();
+                con.close();
+                return "404";
+            }
+            stmt = con.prepareStatement("SELECT C.chat_id, MAX(most_recent.time)" +
+                    " FROM chats as C, " +
+                    " (SELECT chat_id, MAX(time_stamp) as time" +
+                    "  FROM message as M" +
+                    "  WHERE user_id = ?" +
+                    "  GROUP BY M.chat_id) AS most_recent" +
+                    "  WHERE C.chat_id = most_recent.chat_id;");
+            stmt.setString(1, user_id);
+            set = stmt.executeQuery();
 
+            while (set.next()) {
+                row = new JsonObject();
+                row.addProperty("chat_id", set.getString("chat_id"));
+                result.add(row);
+            }
+           
             set.close();
             stmt.close();
             con.close();

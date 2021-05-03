@@ -152,6 +152,7 @@ export default function Sidebar(props) {
                 </div>
             </div>
             {props.conversations.map(obj => (<FriendTile chat_name={obj.chat_name}
+                unread={props.unreadChats.includes(obj.chat_id)}
                 chat_id={obj.chat_id}
                 focus={obj.chat_id === props.chat_id}
                 key={obj.chat_id} click={props.click} />))}

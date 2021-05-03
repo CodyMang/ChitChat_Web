@@ -20,6 +20,7 @@ class App extends React.Component{
   }
 
   onValid =(info)=>{
+    console.log(info)
     this.setState({userinfo:info,loggedIn:true})
   }
   render()
@@ -29,12 +30,12 @@ class App extends React.Component{
     <div className="App">
       <Router>
         <Switch>
-          <Route exact path="/" >
-            {this.state.loggedIn ? <Redirect to="/chats" /> : <Login onValid ={(info)=>this.onValid(info)}/>}
+        <Route exact path="/" >
+            {this.state.loggedIn ? <Redirect to={`/chats/${this.state.userinfo.chat_id}`} /> : <Login onValid ={(info)=>this.onValid(info)}/>}
           </Route>
           <Route exact path="/register"  component = {SignUp}/>
-          <Route path="/chats"  >
-            <MainPage userinfo = {this.state.userinfo}/>
+          <Route exact path="/chats/:chat_id"  render={(props)=><MainPage {...props} userinfo = {this.state.userinfo} />}>
+
           </Route>
           <Route exact path="/*" component = {NoPage}/>  
         </Switch>

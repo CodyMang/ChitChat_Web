@@ -9,8 +9,8 @@
   align-items: center;
 }
 
-.tile-container .focused {
-  background-color: green;
+.current {
+  background-color: rgb(172,172,172);
 }
 
 .tile-container .image {
@@ -22,10 +22,23 @@
 }
 
 .tile-container .text-box {
+  display:inline;
   height: auto;
 }
-
 .tile-container:hover {
   background: rgb(220, 220, 220);
   cursor: pointer;
+}
+
+
+.dot {
+  height: 10px;
+  width: 10px;
+  background-color: rgb(15, 65, 158);
+  border-radius: 50%;
+  margin:0 3px 0 3px;
+}
+
+.notification-unread{
+  display:inline-block;
 }

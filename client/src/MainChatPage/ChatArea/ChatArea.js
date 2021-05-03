@@ -14,11 +14,11 @@ class ChatArea extends React.Component {
       chat_id: this.props.chat_id,
       sendBoxContent: '',
       messages: [],
-      topics:this.props.conversations.map((elem) => (`/channel/${elem.chat_id}`)),
+      topics : this.props.conversations.map((elem) => (`/channel/${elem.chat_id}`)),
       activeUsers:[],
-      unreadChats:[],
     };
-    console.log(this.state.topics);
+    console.log(`Chats that ${this.state.username} has subscribed to ${this.state.topics}`)
+    console.log(`Chats that ${this.state.username} converstations: ${this.props.conversations}`)
     this.keyPressed = this.keyPressed.bind(this);
     this.sendMessageClient = this.sendMessageClient.bind(this);
     this.sendJoin = this.sendJoin.bind(this);
@@ -28,8 +28,9 @@ class ChatArea extends React.Component {
   onMessageRecieve(msg) {
     console.log(msg)
     if (msg) {
-      if (msg.type === "CHAT" ) {
-        if(msg.chat_id == this.state.chat_id)
+      if (msg.type === "CHAT") {
+        console.log(this.state.chat_id);
+        if(msg.chat_id === this.state.chat_id)
         {
           let newMessage = {
             "username": msg.sender,
@@ -39,11 +40,9 @@ class ChatArea extends React.Component {
             messages: [...this.state.messages, newMessage],
           });
         }
-        else
+        else //user is not currently looking at a chat
         {
-          this.setState({
-            unread: [...this.state.unread,msg.chat_id],
-          });
+          this.props.addUnread(msg.chat_id);
         }
       }
       else if (msg.type === "JOIN") {
@@ -64,11 +63,8 @@ class ChatArea extends React.Component {
           if(document.getElementById(msg.message_id) !== null)
           document.getElementById(msg.message_id).innerHTML = msg.content;
         }
-
-
       }
     }
-
   }
 
   sendMessageClient() {
@@ -79,8 +75,6 @@ class ChatArea extends React.Component {
       "sender_id": this.state.user_id,
       'chat_id': this.props.chat_id
     };
-    console.log(messageHeaders);
-    console.log("Current props Chat id: " + this.props.chat_id)
     this.clientRef.sendMessage(`/app/chat.sendMessage/${this.props.chat_id}`, JSON.stringify(messageHeaders));
     this.setState({ sendBoxContent: '' });
   }
@@ -115,10 +109,6 @@ class ChatArea extends React.Component {
   }
 
 
-  // const messages = useFetch(`http://localhost:8080/api/chats/${this.props.chat_id}`),{
-  //   onNewData : 
-  // }
-
   async getChatMessages() {
     const response = await fetch('http://localhost:8080/api/chats/' + this.props.chat_id);
     const data = await response.json();
@@ -136,6 +126,10 @@ class ChatArea extends React.Component {
     if (prevProps.chat_id !== this.props.chat_id) {
       this.getChatMessages();
       this.scrollToBottom();
+    }
+    else if(prevProps.conversations !== this.props.conversations)
+    {
+      this.setState({topics : this.props.conversations.map((elem) => (`/channel/${elem.chat_id}`))});
     }
     else {
       this.scrollToBottom();
