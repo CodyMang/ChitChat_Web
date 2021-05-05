@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react'
 import AddIcon from '@material-ui/icons/Add';
-
+import ChatTile from './ChatTile/ChatTile.js';
 
 import "./ChatsTab.css";
 
@@ -12,6 +12,10 @@ export default function ChatsTab(props) {
                 <AddIcon></AddIcon>
                 Join/Create
             </button>
+            <ChatTile
+                name="Doggy Skwod"
+                message="Hello my fellow doggiesssss"
+            />
         </div>
     );
 }
