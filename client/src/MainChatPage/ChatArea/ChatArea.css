@@ -1,33 +1,56 @@
-.chatarea-container{
-    grid-area: content;
-    height: 100%;
+.chatarea-wrapper {
     width: 100%;
-    min-height: 400px;
-    max-height: 800px;
-    display: grid;
-    grid-template-columns:85% 15%;
-    grid-template-rows:85% 15%;
+    grid-area: content;
+    display: flex;
     align-items: center;
-    grid-column-gap: 30px;
+    justify-content: center;
 }
+
+.chatarea-container{
+    
+    width: 80%;
+    min-height: 80vh;
+    background: white;
+    display: grid;
+    grid-template-columns: 230px auto 214px;
+    grid-template-rows: 46px auto 8%;
+    grid-template-areas:
+    "sidebar header userlist" 
+    "sidebar messages userlist"
+    "sidebar send userlist";
+    align-items: center;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    border-radius: 5px;
+    
+}
+
+.chatarea-header-container {
+    grid-area: header;
+    height: 100%;
+    font-size: 25px;
+    padding-left: 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(24, 24, 24, 0.1);
+}
+
 .send-container{
     height: 50px;
     width: 98%;
     display: flex;
-    grid-row-start:2;
-    grid-column-start: 1;
-    grid-column-end: 2;
+    grid-area: send;
     flex-direction: row;
     align-items: center;
-    
+    padding-left: 10px;
 }
 
 .send-container .text-box{
     width: 70%;
     flex-grow: 1;
     height: 100%;
-    min-width: 500px;
+
 }
+
 
 .send-container .compose-input {
     flex: 1;
@@ -35,9 +58,13 @@
     font-size: 18px;
     height: 40px;
     width: 98%;
-    background: none;
-  }
-  
+}
+
+
+.send-container .text-box input:focus{
+    outline: none;
+}
+
   .compose-input::placeholder {
     opacity: 0.3;
   }
@@ -55,49 +82,39 @@
     }
 
 .message-container-unit{
+    grid-area: messages;
     height:100%;
     max-height: 80vh;
-    width: 100%;
-    grid-row-start:1;
-    grid-column-start: 1;
-    grid-column-end: 1;
-    border: 3px solid  rgb(33, 33, 33);
-    border-radius: 10px;
+
+    /*border: 3px solid  rgb(33, 33, 33);*/
+    border-bottom: 1px solid rgba(24, 24, 24, 0.2);
+    
     overflow: auto;
 }
 
 .current-userlist
 {
-    background-color: white;
-    min-width: 128px;
-    border: 3px solid rgb(33, 33, 33);
-    border-radius: 10px;
+    grid-area: userlist;
+
+    border-left: 1px solid rgba(24, 24, 24, 0.2);
     overflow: auto;
     height:100%;
-    width: 70%;
-    max-height: 80vh;
 }
 .active-user-list-header
 {
     height: auto;
     display:grid;
     font-size: 1.5rem;
-    border-bottom: 3px solid #212121;
+    border-bottom: 1px solid rgba(24, 24, 24, 0.2);
+    height: 46px;
     align-items: center;
 
     justify-content: center;
     margin-bottom: 10px;
 }
 
-.active-username
+.active-user-item
 {
-    width: auto;
-  height: 30px;
-  display: flex;
-  flex-direction: row;
-  padding-left: 10px;
-  user-select: none;
-    align-items: center;
-    width: auto;
-    font-size: 18px;
+    height: 10px;
+    background-color: red;
 }

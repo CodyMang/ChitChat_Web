@@ -3,7 +3,7 @@ import './MainPage.css';
 import Navbar from "../navbar/navbar";
 import FriendBar from "../FriendBar/FriendBar.js";
 import ChatArea from "../ChatArea/ChatArea";
-import SideBar from "../SideBar/SideBar.js";
+
 
 
 class MainPage extends React.Component {
@@ -40,10 +40,12 @@ class MainPage extends React.Component {
         return (
             <div className="main-container">
                 <Navbar username={this.state.username} />
-                <SideBar></SideBar>
+                
                 <ChatArea user_id={this.state.user_id}
                     username={this.state.username}
-                    chat_id={this.state.chat_id} />
+                    chat_id={this.state.chat_id}
+                    chat_name="Doggy Skwod"
+                    />
             </div>
         );
     }
