@@ -1,11 +1,10 @@
 package com.example.ChitChat_test_server;
 
-import com.example.ChitChat_test_server.databaseConnection.NewUser;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.ChitChat_test_server.databaseConnection.DatabaseConnector;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.Map;
 
@@ -60,7 +59,7 @@ class MainController {
 
     @CrossOrigin
     @PostMapping("/createNewChat")
-    ResponseEntity<String> creatChat(@RequestBody Map<String,String> allParams) {
+    ResponseEntity<String> createChat(@RequestBody Map<String,String> allParams) {
         System.out.println("Recieveing New chat Request");
         String res = DatabaseConnector.insertNewChat(allParams.get("chat_name"),
                 allParams.get("user_id"));
@@ -163,22 +162,61 @@ class MainController {
         }
     }
 
+    @CrossOrigin
+    @GetMapping("/getFriends/{user_id}")
+    String getFriends(@PathVariable String user_id) {
+        
+        return DatabaseConnector.getFriends(user_id);
+        
+    }
 
-    // @CrossOrigin
-    // @PostMapping("/AddFriend")
-    // ResponseEntity<String> updateMessage(@RequestBody Map<String,String> allParams) {
-    //     System.out.println("UPDATING");
-    //     String res = DatabaseConnector.updateMessageByid(allParams.get("message_id"),allParams.get("content"));
+    @CrossOrigin
+    @PostMapping("/AddFriend")
+    ResponseEntity<String> addFriend(@RequestBody Map<String,String> allParams) {
+        System.out.println("ADD FRIEND");
+        String res = DatabaseConnector.addFriend(allParams.get("sender"),allParams.get("newFriend"));
 
-    //     if(res.equals("200"))
-    //     {
-    //         return new ResponseEntity<>(HttpStatus.OK);
-    //     }
-    //     else
-    //     {
-    //         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);//Nothing is returned
-    //     }
-    // }
+        if(res.equals("200"))
+        {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else
+        {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);//Nothing is returned
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/confirmFriend")
+    ResponseEntity<String> confirmFriend(@RequestBody Map<String,String> allParams) {
+        System.out.println("ADD FRIEND");
+        String res = DatabaseConnector.confirmFriend(allParams.get("friend_id"));
+
+        if(res.equals("200"))
+        {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else
+        {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);//Nothing is returned
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/rejectFriend")
+    ResponseEntity<String> rejectFriend(@RequestBody Map<String,String> allParams) {
+        System.out.println("ADD FRIEND");
+        String res = DatabaseConnector.rejectFriend(allParams.get("friend_id"));
+
+        if(res.equals("200"))
+        {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else
+        {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);//Nothing is returned
+        }
+    }
 
 }
 

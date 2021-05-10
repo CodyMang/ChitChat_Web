@@ -1,0 +1,52 @@
+.sidebar-container {
+    width: 100%;
+    height: 100%;
+    grid-area: sidebar;
+    box-shadow: none;
+    display: grid;
+    grid-template-rows: 47px auto;
+    grid-template-areas: 
+    "tabs"
+    "selected";
+    overflow-y: hidden;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-right: 1px solid rgba(24, 24, 24, 0.2);
+}
+
+.tabs-container {
+    width: 100%;
+    grid-area: "tabs";
+    display: flex;
+    flex-direction: row;
+    border-bottom: 0.1em solid rgba(24, 24, 24, 0.1);
+}
+
+.tabs-button {
+    height: 100%;
+    width: 50%;
+    border: none;
+    border-bottom: 3px solid white;
+    background: white;
+    transition: border-bottom 0.2s;
+    color: rgba(24, 24, 24, 0.6);
+}
+
+.tabs-button:hover {
+    cursor: pointer;
+    color: rgb(24, 24, 24);
+    border-bottom: 3px solid rgba(32, 32, 32);
+}
+
+.selected {
+    border-bottom: 3px solid rgb(32, 32, 32);
+    color: rgb(24, 24, 24);
+}
+
+.left {
+    border-top-left-radius: 10px;
+}
+
+.right {
+    border-top-right-radius: 10px;
+}

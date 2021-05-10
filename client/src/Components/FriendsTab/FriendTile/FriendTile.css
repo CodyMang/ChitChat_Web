@@ -1,0 +1,64 @@
+.friend-tile-container {
+
+    height: 60px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.info-container {
+    width: 200px;
+    height: 100%;
+
+    display: flex;
+    flex-direction: row;
+    margin-left: 10px;
+}
+
+.profile-container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    z-index: 1;
+    border-radius: 100%;
+    width: 45px;
+    height: 45px;
+}
+
+.username-container {
+    font-size: 18px;
+    width: 150px;
+
+    display: flex;
+    align-items: center;
+}
+
+.username-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.friend-tile-container:hover {
+    cursor: pointer;
+    background: rgba(230, 230, 230, 0.6);
+}
+
+.status-container {
+    z-index: 2;
+    position:relative;
+    width: 12px;
+    height: 12px;
+    
+    border-radius: 100%;
+    top: 15px;
+    right: 10px;
+}
+
+.focus
+{
+    background: rgba(200, 200, 200, 0.6);
+}

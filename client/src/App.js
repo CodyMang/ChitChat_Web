@@ -31,10 +31,10 @@ class App extends React.Component{
       <Router>
         <Switch>
         <Route exact path="/" >
-            {this.state.loggedIn ? <Redirect to={`/chats/${this.state.userinfo.chat_id}`} /> : <Login onValid ={(info)=>this.onValid(info)}/>}
+            {this.state.loggedIn ? <Redirect to={`/chats`} /> : <Login onValid ={(info)=>this.onValid(info)}/>}
           </Route>
           <Route exact path="/register"  component = {SignUp}/>
-          <Route exact path="/chats/:chat_id"  render={(props)=><MainPage {...props} userinfo = {this.state.userinfo} />}>
+          <Route exact path="/chats"  render={(props)=><MainPage {...props} userinfo = {this.state.userinfo} />}>
 
           </Route>
           <Route exact path="/*" component = {NoPage}/>  

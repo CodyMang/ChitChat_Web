@@ -53,6 +53,7 @@ export default function Sidebar(props) {
             console.error(e)
         }
     }
+    
     const handleClose = () => {
         setOpen(false);
     };
