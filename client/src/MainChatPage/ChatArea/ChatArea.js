@@ -48,15 +48,15 @@ class ChatArea extends React.Component {
             "username": msg.sender,
             "content": msg.content
           };
-          
+
           this.setState({
             messages: [...this.state.messages, newMessage],
           });
         }
         else //user is not currently looking at a chat
         {
-          this.props.addUnread(msg.chat_id);
-        }
+          this.addUnreadChat(msg.chat_id);
+        } 
       }
       else if (msg.type === "JOIN") {
           this.setState({
@@ -76,6 +76,17 @@ class ChatArea extends React.Component {
           if(document.getElementById(msg.message_id) !== null)
           document.getElementById(msg.message_id).innerHTML = msg.content;
         }
+      }
+      else if (msg.type === 'RELOAD') {
+        if(msg.content === this.state.username)
+        {
+          this.fetchChatList();
+          this.fetchFriendList();
+          this.getChatMessages();
+        }    
+      }
+      else if (msg.type === 'FRIEND_REQUEST') { 
+          this.fetchFriendList();
       }
     }
   }
@@ -98,20 +109,28 @@ class ChatArea extends React.Component {
     )
   }
 
-  keyPressed(evnt) {
+  keyPressed=(evnt)=> {
     if (evnt.charCode === 13) {
       this.sendMessageClient();
     }
   }
 
-  handleChange(event) {
+  handleChange=(event)=>  {
     this.setState({ sendBoxContent: event.target.value })
   }
 
   
+  handleFriendRequest = (username) => {
+    console.log("Sending Friend Request to ",username);
+    this.clientRef.sendMessage(`/app/friendRequest/${username}`,
+      JSON.stringify({
+        sender: this.state.username,
+        type: 'FRIEND_REQUEST',
+      })
+    )
+  }
+
   handleMessageUpdate = (msg_id, con) => {
-    console.log(msg_id);
-    console.log(con);
     this.clientRef.sendMessage(`/app/chat.update/${this.state.chat_id}`,
       JSON.stringify({
         sender: this.state.username,
@@ -122,14 +141,49 @@ class ChatArea extends React.Component {
     )
   }
 
-  
-  deleteFriend(data)
+  handleNameChange = (nusername) =>
   {
-    this.setState({friendList: this.state.friendList[1].filter(id => id !== data)});
+    this.setState({username:nusername});
+    this.clientRef.sendMessage(`/app/nameChange/${this.state.chat_id}`,
+      JSON.stringify({
+        sender: nusername,
+        type: 'RELOAD'
+      })
+    )
+    this.getChatMessages();
+  
+  }
+  acceptFriend = (accept_id) =>
+  {
+    console.log("accepting");
+    let friends = this.state.friendList[0];
+    let pending = this.state.friendList[1];
+    let idx = pending.map((elem)=> { return elem.chat_id; }).indexOf(accept_id);
+    if(idx !== -1)
+    {
+      const friendName = pending[idx].username;
+      const newFriend = pending.splice(idx,1);
+      const newList = [friends.concat(newFriend),pending];
+      console.log(newList);
+      this.setState({friendList:newList,
+        topics:[...this.state.topics,`/channel/${accept_id}`]});
+      this.handleFriendRequest(friendName);
+    }
+    else
+    {
+      console.error("Could not find friend in friend list")
+    }
+  }
+  deleteFriend = (reject_id) =>
+  {
+    const newList = [this.state.friendList[0],this.state.friendList[1].filter(id => id.chat_id !== reject_id)];
+    this.setState({friendList:newList});
+
   }
 
   addUnreadChat = (unread_chat) =>
   {
+    console.log(unread_chat);
     this.setState({
       unreadChats: [...this.state.unreadChats,unread_chat],
     });
@@ -143,9 +197,12 @@ class ChatArea extends React.Component {
 
   setTopics()
   {
-    console.log(this.state.conversations);
+    
+    const convo = this.state.conversations.map((elem) => (`/channel/${elem.chat_id}`));
+    const dm =  this.state.friendList[0].map((elem) => (`/channel/${elem.chat_id}`))
     this.setState(
-      {topics:this.state.conversations.map((elem) => (`/channel/${elem.chat_id}`))});
+      {topics:[...[`/friend/${this.state.username}`].concat(convo.concat(dm))]});
+    console.log(this.state.topics);
   }
   fetchChatList = async () =>
   {
@@ -154,6 +211,7 @@ class ChatArea extends React.Component {
     console.log(data);
     this.updateConversations(data);
   }
+
 
   updateConversations(data)
   {
@@ -180,7 +238,7 @@ class ChatArea extends React.Component {
     {
       this.getChatMessages();
     }
-    if(prevState.conversations !== this.state.conversations)
+    if(prevState.conversations !== this.state.conversations || prevState.friendList !== this.state.friendList )
     {
       this.setTopics();
     }
@@ -206,11 +264,16 @@ class ChatArea extends React.Component {
                     <span>{this.getChatName(this.state.chat_id)}</span>
                 </div>
                 <SideBar
-                converstations ={this.state.conversations}
-                currentChat = {this.state.chat_id}
-                updateCurrentChat={this.updateChat}
-                friendList = {this.state.friendList}
-                deleteChat = {this.deleteChat}
+                  converstations ={this.state.conversations}
+                  currentChat = {this.state.chat_id}
+                  updateCurrentChat={this.updateChat}
+                  friendList = {this.state.friendList}
+                  deleteChat = {this.deleteChat}
+                  acceptFriend = {this.acceptFriend}
+                  deleteFriend = {this.deleteFriend}
+                  user_id={this.state.user_id}
+                  sendFriendRequest = {this.handleFriendRequest}
+                  unreadChats = {this.state.unreadChats}
                 />
                 <div className="message-container-unit">
                     {
@@ -219,6 +282,7 @@ class ChatArea extends React.Component {
                             content={obj.content}
                             key={obj.message_id}
                             id={obj.message_id}
+                            owner = {this.state.username === obj.username}
                             updateChat={(msg, con) => this.handleMessageUpdate(msg, con)} />))
                     }
                     <div ref={(el) => { this.messagesEnd = el; }} />
@@ -246,7 +310,7 @@ class ChatArea extends React.Component {
                             className="compose-input"
                             placeholder="Type a message..."
                             value={this.state.sendBoxContent}
-                            onChange={this.handleChange.bind(this)}
+                            onChange={this.handleChange}
                             onKeyPress={this.keyPressed}
                         />
                     </div>
@@ -265,61 +329,6 @@ class ChatArea extends React.Component {
         </div>
     );
 }
-  // render() {
-
-  //   return (
-  //     <div className="chatarea-container" >
-  //       <div className="message-container-unit">
-  //         {
-  //           this.state.messages.map(obj => (<MessageTile username={obj.username}
-  //             message_id={obj.message_id}
-  //             content={obj.content}
-  //             key={obj.message_id}
-  //             id={obj.message_id}
-  //             updateChat={(msg, con) => this.handleMessageUpdate(msg, con)} />))
-  //         }
-  //         <div ref={(el) => { this.messagesEnd = el; }} />
-  //       </div>
-  //       <div className='current-userlist'>
-  //         <div className="active-user-list-header">
-  //           <span>Active Users</span>
-  //         </div>
-          
-  //         <div className="active-user-container">
-
-  //         {this.state.activeUsers.map((elem) =>(
-  //         <div>
-  //               <div className="active-username">{elem}</div>
-  //           </div>))}
-
-  //         </div>
-  //       </div>
-  //       <div className="send-container">
-  //         <div className="text-box">
-  //           <input
-  //             type="text"
-  //             className="compose-input"
-  //             placeholder="Type a message..."
-  //             value={this.state.sendBoxContent}
-  //             onChange={this.handleChange.bind(this)}
-  //             onKeyPress={this.keyPressed}
-  //           />
-  //         </div>
-  //         <div className="sendButtons">
-  //           <AttachFileIcon className="attach" />
-  //           <SendIcon className="send" />
-  //         </div>
-  //       </div>
-  //       <SockJsClient url='http://localhost:8080/ws'
-  //         topics={this.state.topics}
-  //         onMessage={(msg) => { this.onMessageRecieve(msg) }}
-  //         ref={(client) => { this.clientRef = client }}
-  //         onConnect={this.sendJoin}
-  //       />
-  //     </div>
-  //   );
-  // }
-
 
   scrollToBottom = () => {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });

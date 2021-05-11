@@ -27,14 +27,6 @@ class MainPage extends React.Component {
     return (
       <div className="main-container">
           <Navbar username={this.state.username} />
-          {/* <FriendBar 
-           conversations = {this.state.conversations}
-           unreadChats =  {this.state.unreadChats}
-           chat_id={this.state.chat_id} 
-           user_id ={this.state.user_id}
-           //Functions
-           click={this.updateChat}
-           onNewChat={this.fetchChatList}/> */}
 
           <ChatArea 
           user_id = {this.state.user_id} 
