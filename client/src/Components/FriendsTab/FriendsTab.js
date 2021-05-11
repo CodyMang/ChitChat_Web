@@ -1,23 +1,15 @@
-import {useState, useEffect} from 'react'
 import AddIcon from '@material-ui/icons/Add';
-
 import FriendTile from "./FriendTile/FriendTile.js";
 import PendingTile from "./PendingTile/PendingTile.js";
 import "./FriendsTab.css";
 
-function selectUser(username) {
-    console.log("Selected: " + username);
-}
-
-
 export default function FriendsTab(props) {
 
-    console.log(props.friendList);
-    console.log(props.pendingFriends);
+
     return (
         <div className="friends-tab-container">
-            <button className="add-friend-button">
-                <AddIcon></AddIcon>
+            <button className="add-friend-button" onClick={props.addFriendClick(true)}>
+                <AddIcon/>
                 Add a friend
             </button>
 
@@ -26,7 +18,8 @@ export default function FriendsTab(props) {
             <PendingTile
                 username={obj.username}
                 chat_id ={obj.chat_id}
-                deleteChat = {props.deleteChat}
+                accept = {props.onAcceptFriend}
+                decline = {props.onRejectFriend}
             />))
             }
             {props.friendList.map(obj => (<FriendTile 
