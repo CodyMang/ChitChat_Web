@@ -19,6 +19,7 @@ export default function ChatsTab(props) {
                 chat_id = {obj.chat_id}
                 click={props.click}
                 name={obj.chat_name}
+                unread={props.unreadChats.indexOf(obj.chat_id) !== -1}
                 focus={obj.chat_id === props.currentChat}
             />))
             }

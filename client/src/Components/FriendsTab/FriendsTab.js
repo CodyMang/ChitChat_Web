@@ -28,9 +28,10 @@ export default function FriendsTab(props) {
                 status={true}
                 click={props.click}
                 focus={obj.chat_id === props.currentChat}
+                unread={props.unreadChats.indexOf(obj.chat_id) !== -1}
             />))
             }
-
+            
         </div>
     );
 }

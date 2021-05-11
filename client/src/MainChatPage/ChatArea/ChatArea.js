@@ -4,6 +4,7 @@ import SendIcon from "@material-ui/icons/Send";
 import MessageTile from './MessageTile/MessageTile.js'
 import SockJsClient from 'react-stomp';
 import SideBar from './SideBar/SideBar';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import "./ChatArea.css";
 
 
@@ -290,6 +291,7 @@ class ChatArea extends React.Component {
                 <div className='current-userlist'>
                     <div className="active-user-list-header">
                         <span>Members</span>
+                        <PersonAddIcon/>
                     </div>
 
                     <div className="active-user-container">

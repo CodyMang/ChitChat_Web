@@ -12,7 +12,9 @@ public class ChatMessage {
         CHAT,
         JOIN,
         LEAVE,
-        UPDATE
+        UPDATE,
+        RELOAD,
+        FRIEND_REQUEST
     }
 
     public MessageType getType() {

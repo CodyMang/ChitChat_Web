@@ -97,34 +97,40 @@ public class DatabaseConnector {
 
     public static String getUserInfoByPass(String userName, String pass) {
         //For Login Purposes
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
-            PreparedStatement stmt = con.prepareStatement("SELECT\n" +
-                    " C.chat_id, U.user_id, U.username, MAX(most_recent.time) \n" +
-                    " FROM\n" +
-                    " chats as C,\n" +
-                    " users as U,\n" +
-                    " (SELECT " +
-                    " chat_id, MAX(time_stamp) as time\n" +
-                    "FROM " +
-                    "message as M,\n" +
-                    "users as U\n" +
-                    "WHERE\n" +
-                    "M.user_id = U.user_id\n" +
-                    "GROUP BY M.chat_id) AS most_recent\n" +
-                    "WHERE " +
-                    "U.username= ? \n" +
-                    "    AND U.pass =?\n" +
-                    "    AND C.chat_id = most_recent.chat_id;");
+            PreparedStatement check = con.prepareStatement("SELECT "
+            +" user_id, username FROM users "
+             +"WHERE username=? AND pass = ?");
+             check.setString(1, userName);
+             check.setString(2, pass);
+             ResultSet Checkset = check.executeQuery();
+             JsonArray result = new JsonArray();
+             JsonObject row= new JsonObject();
+             if(Checkset.next())
+             {
+                row.addProperty("user_id", Checkset.getString("user_id"));
+                row.addProperty("username", Checkset.getString("username"));
+                row.addProperty("chat_id", "-1");
+                result.add(row);
+             }
+             else {
+                 check.close();
+                 con.close();
+                 return "404";
+             }
+            PreparedStatement stmt = con.prepareStatement("SELECT "
+            +"M.chat_id, U.user_id, U.username FROM users as U, message as M "
+             +"WHERE U.username=? AND U.pass =? AND M.user_id = U.user_id ORDER BY M.time_stamp DESC LIMIT 1;");
             stmt.setString(1, userName);
             stmt.setString(2, pass);
             ResultSet set = stmt.executeQuery();
-            JsonArray result = new JsonArray();
-            JsonObject row;
             String user_id = "";
-            while (set.next()) {
+            if(set.next()) {
+                result = new JsonArray();
                 row = new JsonObject();
                 user_id = set.getString("user_id");
                 row.addProperty("user_id", user_id);
@@ -139,32 +145,13 @@ public class DatabaseConnector {
                 con.close();
                 return "404";
             }
-            // stmt = con.prepareStatement("SELECT C.chat_id, MAX(most_recent.time)" +
-            //         " FROM chats as C, " +
-            //         " (SELECT chat_id, MAX(time_stamp) as time" +
-            //         "  FROM message as M" +
-            //         "  WHERE user_id = ?" +
-            //         "  GROUP BY M.chat_id) AS most_recent" +
-            //         "  WHERE C.chat_id = most_recent.chat_id;");
-            // stmt.setString(1, user_id);
-            // set = stmt.executeQuery();
-
-            // while (set.next()) {
-            //     row = new JsonObject();
-                
-            //     result.add(row);
-            // }
            
             set.close();
             stmt.close();
             con.close();
-            // if(result.size() == 0)
-            // {
-            //     return "404";
-            // }
             return result.toString();
         } catch (Exception e) {
-            System.err.println("SQL Database:UserExists Error");
+            System.err.println("SQL Database: getInfoByPass Error");
             e.printStackTrace();
         }
         return "404";
@@ -380,11 +367,31 @@ public class DatabaseConnector {
     
     public static String addFriend(String sender,String newFriend)
     {
+        
         try
         {
+
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+
+            PreparedStatement check = con.prepareStatement("select username from friends as F, users as U "
+            +"where U.username = ? AND (F.user_id1 = U.user_id"
+            +" OR F.user_id2 =  U.user_id) AND (F.user_id1 = ? OR F.user_id2 =  ?);");
+            check.setString(1,newFriend);
+            check.setString(2,sender);
+            check.setString(3,sender);
+            ResultSet rs = check.executeQuery();
+            
+            if(rs.next())
+            {
+                con.close();
+                check.close();
+                return "400";
+            }
+            check.close();
+            System.out.println("Closed connectin");
+           
 
             PreparedStatement stmt = con.prepareStatement("insert into Friends set user_id1 = ?," 
                 +" user_id2=(select user_id from users where username =?);");
@@ -408,18 +415,23 @@ public class DatabaseConnector {
 
     public static String getFriends(String user_id)
     {
-        
+        System.out.println("Getting friends of "+user_id);
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
 
-            PreparedStatement stmt = con.prepareStatement("Select F.chat_id, U.username FROM friends as F, users as U"
-                +" Where F.user_id1 = ? AND U.user_id = F.user_id2 AND confirmed = true;");
+            PreparedStatement stmt = con.prepareStatement("Select F.chat_id, U.username from friends as F, users as U Where"
+           +"(F.user_id1 = ? OR F.user_id2 = ?) AND (U.user_id = F.user_id2 OR U.user_id = F.user_id1)"
+           +" AND NOT U.user_id = ? AND confirmed = true;");
+
             PreparedStatement stmt2 = con.prepareStatement("Select F.chat_id, U.username FROM friends as F, users as U"
-                +" Where F.user_id1 = ? AND U.user_id = F.user_id2 AND confirmed = false;");
+                +" Where F.user_id2 = ? AND U.user_id = F.user_id1 AND confirmed = false;");
+
             stmt.setString(1,user_id);
+            stmt.setString(2,user_id);
+            stmt.setString(3,user_id);
             ResultSet set = stmt.executeQuery();
             JsonArray result = new JsonArray();
             JsonObject row;
@@ -483,7 +495,7 @@ public class DatabaseConnector {
         return "404";
     }
 
-    public static String rejectFriend(String friend_id)
+    public static String rejectFriend(String chat_id)
     {
         try
         {
@@ -491,9 +503,9 @@ public class DatabaseConnector {
             Connection con = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
 
-            PreparedStatement stmt = con.prepareStatement("Delte from friends where chat_id = ?;");
-            
-            stmt.setString(1,friend_id);
+            PreparedStatement stmt = con.prepareStatement("DELETE FROM friends WHERE chat_id = ?;");
+            // The SQL trigger should delete chat_id from all related tables
+            stmt.setString(1,chat_id);
 
             stmt.execute();
             stmt.close();
@@ -503,6 +515,32 @@ public class DatabaseConnector {
         catch(Exception e)
         {
             System.err.println("SQL Database: reject Friend");
+            e.printStackTrace();
+        }
+
+        return "404";
+    }
+
+    public static String updateUsername(String user_id,String new_username)
+    {
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+
+            PreparedStatement stmt = con.prepareStatement("UPDATE users SET username = ? where user_id = ?;");
+            // The SQL trigger should delete chat_id from all related tables
+            stmt.setString(1, new_username);
+            stmt.setString(2,user_id);
+            stmt.execute();
+            stmt.close();
+            con.close();
+            return "200";
+        }
+        catch(Exception e)
+        {
+            System.err.println("SQL Database:update Name");
             e.printStackTrace();
         }
 

@@ -27,6 +27,7 @@ class MainController {
     @CrossOrigin
     @PostMapping("/login")
     ResponseEntity<String> loginUser(@RequestBody Map<String,String> allParams) {
+        System.out.println("Logging in");
         String res = DatabaseConnector.getUserInfoByPass(allParams.get("username"),allParams.get("pass"));
         if(!res.equals("404"))
         {
@@ -171,7 +172,7 @@ class MainController {
     }
 
     @CrossOrigin
-    @PostMapping("/AddFriend")
+    @PostMapping("/addFriend")
     ResponseEntity<String> addFriend(@RequestBody Map<String,String> allParams) {
         System.out.println("ADD FRIEND");
         String res = DatabaseConnector.addFriend(allParams.get("sender"),allParams.get("newFriend"));
@@ -189,8 +190,23 @@ class MainController {
     @CrossOrigin
     @PostMapping("/confirmFriend")
     ResponseEntity<String> confirmFriend(@RequestBody Map<String,String> allParams) {
+        String res = DatabaseConnector.confirmFriend(allParams.get("chat_id"));
+
+        if(res.equals("200"))
+        {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else
+        {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);//Nothing is returned
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/rejectFriend")
+    ResponseEntity<String> rejectFriend(@RequestBody Map<String,String> allParams) {
         System.out.println("ADD FRIEND");
-        String res = DatabaseConnector.confirmFriend(allParams.get("friend_id"));
+        String res = DatabaseConnector.rejectFriend(allParams.get("chat_id"));
 
         if(res.equals("200"))
         {
@@ -202,11 +218,12 @@ class MainController {
         }
     }
 
+
     @CrossOrigin
-    @PostMapping("/rejectFriend")
-    ResponseEntity<String> rejectFriend(@RequestBody Map<String,String> allParams) {
-        System.out.println("ADD FRIEND");
-        String res = DatabaseConnector.rejectFriend(allParams.get("friend_id"));
+    @PostMapping("/updateUsername")
+    ResponseEntity<String> updateUsername(@RequestBody Map<String,String> allParams) {
+        System.out.println("update name");
+        String res = DatabaseConnector.updateUsername(allParams.get("user_id"),allParams.get("username"));
 
         if(res.equals("200"))
         {

@@ -10,6 +10,7 @@
     grid-row-gap: 10px;
 }
 
+
 .message-container:hover{
     background: rgb(220, 220, 220);
 }
@@ -48,4 +49,12 @@
 
 .delete-button:hover{
     color: 	#DC143C;
+}
+
+.filler-for-edit
+{
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start:1;
+    grid-row-end:1;
 }

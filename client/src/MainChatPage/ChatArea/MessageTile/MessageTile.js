@@ -83,11 +83,21 @@ export default function MessageTile(props){
 
     }
     return(
-            <div className="message-container">
+            <div className='message-container'>
                 <div className="username">{props.username}</div>
                 {getEditor()}  
-                <CreateIcon className='more-horizon' onClick={()=>setEditor(true)}/>
-                <DeleteForeverIcon className="delete-button" onClick={()=>handleDelete()} />
+                {props.owner ?
+                    
+                    <CreateIcon className='more-horizon' onClick={()=>setEditor(true)}/>
+                    :
+                    <div className="more-horizon"></div>
+                }
+                 {props.owner ?
+                    
+                    <DeleteForeverIcon className="delete-button" onClick={()=>handleDelete()} />   
+                    :
+                    <div className="delete-button"></div>
+                }   
             </div>
     )
 

@@ -29,6 +29,7 @@ public class ChatController {
     public void sendMessage(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
         System.out.println("Message recieved at " + chat_id);
         DatabaseConnector.storeMessage(chatMessage.getContent(), chatMessage.getSender_id(), chat_id);
+        System.out.println("Sending message to " + chat_id);
         messagingTemplate.convertAndSend("/channel/" + chat_id, chatMessage);
     }
 
@@ -46,6 +47,18 @@ public class ChatController {
     @MessageMapping("/chat.update/{chat_id}")
     public void updateMessage(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
         messagingTemplate.convertAndSend("/channel/"+chat_id, chatMessage);
+    }
+
+    @MessageMapping("/friendRequest/{username}")
+    public void reloadMessage(@Payload ChatMessage chatMessage, @DestinationVariable String username) {
+        System.out.println("Sending Friend Request to "+ username + " from " + chatMessage.getSender());
+        messagingTemplate.convertAndSend("/friend/"+username, chatMessage);
+    }
+
+    @MessageMapping("/nameChange")
+    public void nameChange(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
+        System.out.println("Changing Name " + chat_id);
+        messagingTemplate.convertAndSend("/channel", chatMessage);
     }
 
 

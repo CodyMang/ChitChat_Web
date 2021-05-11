@@ -58,3 +58,8 @@
 {
     background: rgba(200, 200, 200, 0.6);
 }
+
+.unread-chat
+{
+    border-left: 5px solid rgba(2, 131, 163, 0.87);
+}

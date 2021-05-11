@@ -6,7 +6,7 @@ export default function FriendTile(props) {
 
     return (
         <div 
-            className={`friend-tile-container no-select ${props.focus ? 'focus':''}`}
+            className={`friend-tile-container no-select ${props.focus ? 'focus':''} ${props.unread ? 'unread-chat':''}`}
             onClick={() => props.click(props.chat_id)}
         >
             <div className="info-container">

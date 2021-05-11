@@ -8,6 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
+import ChangeNameDialog from './ChangeNameDialog/ChangeNameDialog.js'
 import './MenuList.css'
 
 const useStyles = makeStyles((theme) => ({
@@ -22,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
 export default function MenuListComposition(props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [dialogOpen, setDialogOpen]= React.useState(false);
   const anchorRef = React.useRef(null);
 
   const handleToggle = () => {
@@ -80,7 +82,7 @@ export default function MenuListComposition(props) {
               <Paper>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                    <MenuItem onClick={handleClose}>Profile</MenuItem>
+                    <MenuItem onClick={()=>setDialogOpen(true)}>Change Name</MenuItem>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </MenuList>
                 </ClickAwayListener>
@@ -89,6 +91,12 @@ export default function MenuListComposition(props) {
           )}
         </Popper>
       </div>
+      <ChangeNameDialog  
+            open = {dialogOpen}
+            sendRequest = {props.sendFriendRequest}
+            handleClose ={()=>setDialogOpen(false)} 
+            user_id={props.user_id}
+            />
     </div>
   );
 }

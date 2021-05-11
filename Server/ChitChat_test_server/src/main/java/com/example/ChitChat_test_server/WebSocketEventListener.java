@@ -38,7 +38,6 @@ public class WebSocketEventListener {
             chatMessage.setSender(username);
             ChatController.activeUsers.remove(username);
             messagingTemplate.convertAndSend("/channel/" + chat_id, chatMessage);
-
         }
     }
 }
