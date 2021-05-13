@@ -25,7 +25,8 @@ export default function ChangeNameDialog(props)
           const status = await response.status;
           if (status === 200) {     
               handleClose();
-              props.sendChangeUsername(username);
+              
+              props.reload(username);
               alert('Name Changed');
           }
           else {

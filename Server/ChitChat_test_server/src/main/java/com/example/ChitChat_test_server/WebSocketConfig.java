@@ -1,4 +1,3 @@
-
 package com.example.ChitChat_test_server;
 
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +21,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
         registry.enableSimpleBroker("/channel","/friend");
-        registry.setUserDestinationPrefix("/friend");
+        //registry.setUserDestinationPrefix("/friend");
     }
 }

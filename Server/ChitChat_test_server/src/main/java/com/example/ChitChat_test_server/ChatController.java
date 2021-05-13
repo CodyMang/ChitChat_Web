@@ -14,21 +14,21 @@ import org.springframework.stereotype.Controller;
 import com.example.ChitChat_test_server.databaseConnection.DatabaseConnector;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import javax.print.DocFlavor;
-import java.util.ArrayList;
-import java.util.HashMap;
+import javax.xml.crypto.Data;
+
+
 @Controller
 public class ChatController {
 
 
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
-    public static ArrayList<String> activeUsers = new ArrayList<>();
+
 
     @MessageMapping("/chat.sendMessage/{chat_id}")
     public void sendMessage(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
         System.out.println("Message recieved at " + chat_id);
-        DatabaseConnector.storeMessage(chatMessage.getContent(), chatMessage.getSender_id(), chat_id);
+        DatabaseConnector.storeMessage(chatMessage.getContent(), chatMessage.getSender_id(), chat_id,chatMessage.getMessage_type());
         System.out.println("Sending message to " + chat_id);
         messagingTemplate.convertAndSend("/channel/" + chat_id, chatMessage);
     }
@@ -37,10 +37,8 @@ public class ChatController {
     public void addUser(@Payload ChatMessage chatMessage,
                                SimpMessageHeaderAccessor headerAccessor,
                                @DestinationVariable String chat_id) {
-        activeUsers.add(chatMessage.getSender());
         String currentRoomId = (String) headerAccessor.getSessionAttributes().put("chat_id",chat_id);
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        chatMessage.setUsers(activeUsers);
         messagingTemplate.convertAndSend("/channel/", chatMessage);
     }
 
@@ -57,14 +55,26 @@ public class ChatController {
 
     @MessageMapping("/chatInvite/{username}")
     public void chatInvite(@Payload ChatMessage chatMessage, @DestinationVariable String username) {
-        System.out.println("Sending ChatInvite to "+ username + " from " + chatMessage.getSender());
+        System.out.println("Sending ChatInvite to "+ username + " for " +chatMessage.getChat_name() +" from " + chatMessage.getSender());
         messagingTemplate.convertAndSend("/friend/"+username, chatMessage);
     }
 
+    @MessageMapping("/reload/{chat_name}")
+    public void reloadChat(@Payload ChatMessage chatMessage, @DestinationVariable String chat_name) {
+        String chat_id = DatabaseConnector.getChatIDByChatName(chat_name);
+        messagingTemplate.convertAndSend("/channel/"+chat_id, chatMessage);
+    }
+
+    @MessageMapping("/reload/")
+    public void reloadBroadcast(@Payload ChatMessage chatMessage) {
+        messagingTemplate.convertAndSend("/channel/", chatMessage);
+    }
+
     @MessageMapping("/nameChange")
-    public void nameChange(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
+    @SendTo("/channel/")
+    public ChatMessage nameChange(@Payload ChatMessage chatMessage, @DestinationVariable String chat_id) {
         System.out.println("Changing Name " + chat_id);
-        messagingTemplate.convertAndSend("/channel", chatMessage);
+        return chatMessage;
     }
 
 

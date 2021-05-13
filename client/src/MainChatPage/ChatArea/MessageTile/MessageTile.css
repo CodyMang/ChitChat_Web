@@ -1,6 +1,6 @@
 .message-container{
     
-    width:auto;
+    width:100%;
     height:auto;
     min-height:50px;
     padding:10px;
@@ -57,4 +57,20 @@
     grid-column-end: 2;
     grid-row-start:1;
     grid-row-end:1;
+}
+.message-link
+{
+    color:blue;
+}
+.content-input
+{
+    height: 20px;
+    font-size: 18px;
+    padding:10px;
+    border-radius:10px;
+}
+
+.content-input:focus
+{
+    outline: none;
 }

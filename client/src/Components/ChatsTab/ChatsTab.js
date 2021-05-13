@@ -24,8 +24,12 @@ export default function ChatsTab(props) {
             const status = await response.status;
             if (status === 204) {     
                 setDialogOpen(false);
-                alert(`Joined New Chat "${username}"`);
+                props.declineChat(username);
                 props.onNewChat();
+                props.triggerReload(username);
+                alert(`Joined New Chat "${username}"`);
+
+                
             }
             else {
                 alert("Chat room does not exist");
@@ -35,7 +39,6 @@ export default function ChatsTab(props) {
             alert("Error occured please try again");
         }
     }
-    console.log(props.chatInvites)
     return (
         <div className="chats-tab-container">
             <button className="join-create-button"
@@ -43,14 +46,16 @@ export default function ChatsTab(props) {
                 <AddIcon/>
                 Join/Create
             </button>
-            { 
+          
+                { 
                 props.chatInvites.map(val=> (<PendingTileChat
                 chat_name ={val}
                 joinChat = {handleSubmitJoin}
                 declineChat ={props.declineChat}
              />))
              }
-            {
+             
+              {
             props.conversations.map(obj =>(<ChatTile
                 key = {obj.chat_id}
                 chat_id = {obj.chat_id}
@@ -60,6 +65,7 @@ export default function ChatsTab(props) {
                 focus={obj.chat_id === props.currentChat}
             />))
             }
+           
            <CreateJoinDialog 
            onNewChat ={props.onNewChat}
            open = {dialogOpen}

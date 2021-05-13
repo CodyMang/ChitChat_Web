@@ -27,6 +27,7 @@ class ChatArea extends React.Component {
       friendList:[[],[]],
       members:[],
       chatInvites:[],
+      selectedFileNull:true,
       selectedFile:null,
     };
     console.log(`Chat_id on intialization: ${props.chat_id}`);
@@ -36,6 +37,8 @@ class ChatArea extends React.Component {
     this.shandleMessageUpdate = this.handleMessageUpdate.bind(this);
   }
   
+
+
   async fetchFriendList()
   {
     const response = await fetch(GET_FRIENDS_API+this.state.user_id);
@@ -97,6 +100,38 @@ class ChatArea extends React.Component {
       else if (msg.type === 'FRIEND_REQUEST') { 
           this.fetchFriendList();
       }
+      else if (msg.type === 'RELOAD') {
+          this.fetchChatList();
+          this.fetchFriendList();
+          this.getChatMessages();
+        
+      }
+    }
+  }
+
+
+  triggerReload = (chat_id)=>
+  {
+    
+    this.clientRef.sendMessage(`/app/reload/${chat_id}`,
+    JSON.stringify({
+      sender: this.state.username,
+      chat_name: this.state.chat_id,//chat_id is actually then chat_name
+      type: 'RELOAD',
+    })
+  )
+  }
+
+  fileIsLoaded = () =>
+  {
+    if(this.state.selectedFileNull)
+    {
+      return 'text';
+    }
+    else
+    {
+      this.setState({selectedFileNull:true, selectedFile:null});
+      return 'file';
     }
   }
 
@@ -139,8 +174,10 @@ class ChatArea extends React.Component {
       "content": this.state.sendBoxContent,
       'type': 'CHAT',
       "sender_id": this.state.user_id,
-      'chat_id': this.state.chat_id
+      'chat_id': this.state.chat_id,
+      'message_type':this.fileIsLoaded(),
     };
+    console.log(this.clientRef);
     this.clientRef.sendMessage(`/app/chat.sendMessage/${this.state.chat_id}`, JSON.stringify(messageHeaders));
     this.setState({ sendBoxContent: '' });
   }
@@ -182,27 +219,28 @@ class ChatArea extends React.Component {
 
   addFriendToChat = (username) =>
   {
+    const chat_name = this.getChatName(this.state.chat_id);
     this.clientRef.sendMessage(`/app/chatInvite/${username}`,
     JSON.stringify({
       sender: this.state.username,
-      chat_name:this.state.chat_name,
+      chat_name:chat_name,
       type: 'CHAT_INVITE',
     }));
     this.setState({addFriendToChatDialog:false});
-    alert("Chat Invite Sent")
+    alert("Chat Invite Sent");
   }
-  handleNameChange = (nusername) =>
+  handleNameChange = (username2) =>
   {
-    this.setState({username:nusername});
-    this.clientRef.sendMessage(`/app/nameChange/${this.state.chat_id}`,
-      JSON.stringify({
-        sender: nusername,
-        type: 'RELOAD'
-      })
+    console.log(username2)
+    this.clientRef.sendMessage(`/app/reload/`,
+        JSON.stringify({
+            sender: this.state.username,
+            type: 'RELOAD',
+        })
     )
-    this.getChatMessages();
-  
+    this.setState({username:username2});
   }
+
   acceptFriend = (accept_id) =>
   {
     console.log("accepting");
@@ -270,11 +308,34 @@ class ChatArea extends React.Component {
 
   }
 
+  uploadSingleFile = async(file)=>
+  {
+      let formData = new FormData();
+      formData.append("file", file);
+
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://localhost:8080/api/uploadFile");
+  
+      xhr.onload = () => {
+          
+          let response = JSON.parse(xhr.responseText);
+          if(xhr.status == 200) {
+            alert("File Uploaded")
+            this.setState({sendBoxContent:response.fileDownloadUri});
+                      
+          } 
+          else {
+              console.error("Some Error Occurred") ;
+          }
+      }
+  
+      xhr.send(formData);
+  }
   onFileChange = (event) =>
   {
-    this.setState({selectedFile:event.target.files[0],
-                  selectedBoxContent:event.target.files[0].name});
+    this.setState({selectedFile:event.target.files[0],selectedFileNull:false});
     console.log(event.target.files[0]);
+    this.uploadSingleFile(event.target.files[0]);
   }
   updateConversations(data)
   {
@@ -291,8 +352,6 @@ class ChatArea extends React.Component {
     const responseUsers = await fetch('http://localhost:8080/api/chats/users/'+ this.state.chat_id);
     const memberList = await responseUsers.json();
     this.setState({  messages: data,members: memberList  });
-    console.log(memberList);
-    console.log(memberList[0].is_active === "1");
   }
   catch (e)
   {
@@ -341,7 +400,7 @@ class ChatArea extends React.Component {
                 <div className="chatarea-header-container">
                     <span>{this.getChatName(this.state.chat_id)}</span>
                 </div>
-                <SideBar
+                <SideBar // Lord forgive me for this many props
                   converstations ={this.state.conversations}
                   currentChat = {this.state.chat_id}
                   updateCurrentChat={this.updateChat}
@@ -355,6 +414,7 @@ class ChatArea extends React.Component {
                   unreadChats = {this.state.unreadChats}
                   chatInvites = {this.state.chatInvites}
                   declineChat = {this.declineChat}
+                  triggerReload = {this.triggerReload}
                 />
                 <div className="message-container-unit">
                     {
@@ -363,6 +423,7 @@ class ChatArea extends React.Component {
                             content={obj.content}
                             key={obj.message_id}
                             id={obj.message_id}
+                            message_type ={obj.message_type }
                             owner = {this.state.username === obj.username}
                             updateChat={(msg, con) => this.handleMessageUpdate(msg, con)} />))
                     }

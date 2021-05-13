@@ -18,17 +18,26 @@ class MainPage extends React.Component {
       conversations:[],
       unreadChats:[],
     }
+    this.chatAreaRef = React.createRef();
   }
 
 
-  
+  setUserName = (data) =>
+  {
+    console.log("changing name")
+    this.setState({username:data})
+  }
 
   render() {
     return (
       <div className="main-container">
-          <Navbar username={this.state.username} />
+          <Navbar user_id ={this.state.user_id} 
+          username={this.state.username} 
+          setUserName = {this.setUserName}
+          chatAreaRef = {this.chatAreaRef}/>
 
           <ChatArea 
+          ref = {this.chatAreaRef}
           user_id = {this.state.user_id} 
           username = {this.state.username}
           chat_id={this.state.chat_id}

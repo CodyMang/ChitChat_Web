@@ -9,36 +9,22 @@ export default function MessageTile(props){
 
     const [editor,setEditor] = React.useState(false);
     const [msgContent,setMsgContent] = React.useState(props.content);
-   
+    const [tempValue,setTemp ]= React.useState(msgContent);
     const handleSubmit = () =>
     {
         setEditor(false);
         updateMessage();
     }
     
-    const keyPressed = (evnt) => {
-        if (evnt.charCode === 13) {
+    const keyPressed = (e) => {
+        if (e.key === "Escape") {
+            setEditor(false);
+        }
+        if (e.key === "Enter") {
             handleSubmit();
         }
     }
 
-    const getEditor = () =>
-    {
-        if(editor)
-        {
-            return (<div className="content">
-                <input type="textarea"
-                    onChange={(event) => {setMsgContent(event.target.value) }}
-                    value={msgContent} 
-                    onKeyPress={keyPressed}
-                    id = {props.message_id}
-                    /></div>)
-        }
-        else
-        {
-            return (<div id = {props.message_id} className="content">{msgContent}</div>)
-        }
-    }
 
     const handleDelete = async () =>
     {
@@ -82,10 +68,30 @@ export default function MessageTile(props){
             }
 
     }
+    
+    const getEditor = (edit) =>
+    {
+        if(edit)
+        {
+            
+            return (<div className="content">
+                <input type="textarea"
+                     className="content-input"
+                    onChange={(event) => {setMsgContent(event.target.value) }}
+                    value={msgContent} 
+                    onKeyPress={keyPressed}
+                    id = {props.message_id}
+                    /></div>)
+        }
+        else
+        {
+            return (<div id = {props.message_id} className="content">{msgContent}</div>)
+        }
+    }
     return(
             <div className='message-container'>
                 <div className="username">{props.username}</div>
-                {getEditor()}  
+                {props.message_type === "file" ? (<a className="message-link" href={props.content}>{props.content}</a>):getEditor(editor)}  
                 {props.owner ?
                     
                     <CreateIcon className='more-horizon' onClick={()=>setEditor(true)}/>

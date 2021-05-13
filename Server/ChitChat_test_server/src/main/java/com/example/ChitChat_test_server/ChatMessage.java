@@ -8,7 +8,7 @@ public class ChatMessage {
     private String sender_id;
     private String message_id;
     private String chat_name;
-    private String [] users = new String[100];
+    private String message_type;
     public enum MessageType {
         CHAT,
         JOIN,
@@ -56,17 +56,13 @@ public class ChatMessage {
 
     public void setMessage_id(String message_id) {this.message_id = message_id;}
 
-    public String[] getUsers(){
-        return users;
+    public String getMessage_type() {
+        return message_type;
     }
 
-    public void setUsers(ArrayList<String> users) {
-        for(int i = 0; i < users.size();i++)
-        {
-            this.users[i] = users.get(i);
-        }
+    public void setMessage_type(String message_type) {
+        this.message_type = message_type;
     }
-
 
 
 //    public String getChat_id() {return chat_id; }

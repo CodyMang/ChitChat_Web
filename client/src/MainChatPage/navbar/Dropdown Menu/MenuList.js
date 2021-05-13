@@ -93,9 +93,10 @@ export default function MenuListComposition(props) {
       </div>
       <ChangeNameDialog  
             open = {dialogOpen}
-            sendRequest = {props.sendFriendRequest}
+            reload = {props.reload}
             handleClose ={()=>setDialogOpen(false)} 
             user_id={props.user_id}
+            setUserName = {props.setUserName}
             />
     </div>
   );

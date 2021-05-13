@@ -9,18 +9,19 @@ public class DatabaseConnector {
     private static String dbpass = "1234";
     private static String url = "jdbc:mysql://localhost:3306/Chitchat_db";
 
-    public static void storeMessage(String messageContent, String user_id, String chat_id) {
+    public static void storeMessage(String messageContent, String user_id, String chat_id,String message_type) {
         try {
 
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
-            String query = "INSERT INTO message (user_id,chat_id,content)"
-                    + " VALUES (?,?,?);";
+            String query = "INSERT INTO message (user_id,chat_id,content,message_type)"
+                    + " VALUES (?,?,?,?);";
             PreparedStatement stmt = con.prepareStatement(query);
             stmt.setString(1, user_id);
             stmt.setString(2, chat_id);
             stmt.setString(3, messageContent);
+            stmt.setString(4, (message_type == null ? "text":message_type));
             stmt.execute();
             stmt.close();
             con.close();
@@ -35,7 +36,7 @@ public class DatabaseConnector {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
-            String query = "SELECT U.username, M.content, M.message_id " +
+            String query = "SELECT U.username, M.content, M.message_id, M.message_type " +
                     "FROM message AS M, users as U " +
                     "WHERE U.user_id = M.user_id AND chat_id = ? " +
                     "ORDER BY M.time_stamp";
@@ -49,6 +50,8 @@ public class DatabaseConnector {
                 row.addProperty("username", set.getString("username"));
                 row.addProperty("content", set.getString("content"));
                 row.addProperty("message_id", set.getString("message_id"));
+                row.addProperty("message_type", set.getString("message_type"));
+
                 result.add(row);
             }
             stmt.close();
@@ -125,6 +128,28 @@ public class DatabaseConnector {
     }
 
 
+    public static String getChatIDByChatName(String chat_name) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
+
+            String query = "SELECT chat_id from chats WHERE chat_name = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, chat_name);
+            ResultSet set = stmt.executeQuery();
+            if (set.next()) {
+                return set.getString("chat_id");
+            }
+            stmt.close();
+            set.close();
+            con.close();
+
+        } catch (Exception e) {
+            System.err.println("SQL storeMessage Error");
+            e.printStackTrace();
+        }
+        return "[]";
+    }
     public static String getUserInfoByPass(String userName, String pass) {
         //For Login Purposes
 
@@ -395,7 +420,7 @@ public class DatabaseConnector {
         return "404";
     }
 
-    
+
     public static String addFriend(String sender,String newFriend)
     {
         
@@ -421,7 +446,6 @@ public class DatabaseConnector {
                 return "400";
             }
             check.close();
-            System.out.println("Closed connectin");
            
 
             PreparedStatement stmt = con.prepareStatement("insert into Friends set user_id1 = ?," 
@@ -554,6 +578,7 @@ public class DatabaseConnector {
 
     public static String updateUsername(String user_id,String new_username)
     {
+        
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");

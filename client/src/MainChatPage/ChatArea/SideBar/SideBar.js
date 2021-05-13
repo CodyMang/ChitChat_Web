@@ -78,6 +78,7 @@ export default function SideBar(props) {
                     user_id={props.user_id}
                     onNewChat={props.onNewChat}
                     chatInvites = {props.chatInvites}
+                    triggerReload = {props.triggerReload}
                     declineChat = {props.declineChat}/>
                     
                 : <FriendsTab
