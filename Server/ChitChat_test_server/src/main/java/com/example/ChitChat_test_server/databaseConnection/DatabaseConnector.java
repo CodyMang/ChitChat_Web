@@ -59,9 +59,39 @@ public class DatabaseConnector {
             System.err.println("SQL storeMessage Error");
             e.printStackTrace();
         }
-        return "NULL";
+        return "[]";
     }
 
+    public static String getUsersFromChat(String chat_id) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
+
+            String query = "SELECT U.username, U.user_id, U.is_active " +
+                    "FROM users AS U, group_users AS G " +
+                    "WHERE G.chat_id = ? AND U.user_id = G.user_id;";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, chat_id);
+            JsonArray result = new JsonArray();
+            JsonObject row = new JsonObject();
+            ResultSet set = stmt.executeQuery();
+            while (set.next()) {
+                row = new JsonObject();
+                row.addProperty("username", set.getString("username"));
+                row.addProperty("user_id", set.getString("user_id"));
+                row.addProperty("is_active", set.getString("is_active"));
+                result.add(row);
+            }
+            stmt.close();
+            set.close();
+            con.close();
+            return result.toString();
+        } catch (Exception e) {
+            System.err.println("SQL getUsersFromChat Error");
+            e.printStackTrace();
+        }
+        return "[]";
+    }
 
     public static String getChatsbyUser(String user_id) {
         try {
@@ -189,6 +219,7 @@ public class DatabaseConnector {
     }
 
     public static String insertNewChat(String chat_name,String user_id) {
+        System.out.println(chat_name+" "+user_id);
         try {
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
@@ -541,6 +572,55 @@ public class DatabaseConnector {
         catch(Exception e)
         {
             System.err.println("SQL Database:update Name");
+            e.printStackTrace();
+        }
+
+        return "404";
+    }
+
+    public static String goOnline(String user_id)
+    {
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+
+            PreparedStatement stmt = con.prepareStatement("UPDATE users SET is_active = 1 where user_id = ?;");
+            // The SQL trigger should delete chat_id from all related table
+            stmt.setString(1,user_id);
+            stmt.execute();
+            stmt.close();
+            con.close();
+            return "200";
+        }
+        catch(Exception e)
+        {
+            System.err.println("SQL Database:goOnline");
+            e.printStackTrace();
+        }
+
+        return "404";
+    }
+    public static String logoutUser(String username)
+    {
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+
+            PreparedStatement stmt = con.prepareStatement("UPDATE users SET is_active = 0 where username = ?;");
+            // The SQL trigger should delete chat_id from all related table
+            stmt.setString(1,username);
+            stmt.execute();
+            stmt.close();
+            con.close();
+            return "200";
+        }
+        catch(Exception e)
+        {
+            System.err.println("SQL Database:logout User");
             e.printStackTrace();
         }
 

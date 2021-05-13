@@ -41,7 +41,7 @@ public class ChatController {
         String currentRoomId = (String) headerAccessor.getSessionAttributes().put("chat_id",chat_id);
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         chatMessage.setUsers(activeUsers);
-        messagingTemplate.convertAndSend("/channel/" + chat_id, chatMessage);
+        messagingTemplate.convertAndSend("/channel/", chatMessage);
     }
 
     @MessageMapping("/chat.update/{chat_id}")
@@ -52,6 +52,12 @@ public class ChatController {
     @MessageMapping("/friendRequest/{username}")
     public void reloadMessage(@Payload ChatMessage chatMessage, @DestinationVariable String username) {
         System.out.println("Sending Friend Request to "+ username + " from " + chatMessage.getSender());
+        messagingTemplate.convertAndSend("/friend/"+username, chatMessage);
+    }
+
+    @MessageMapping("/chatInvite/{username}")
+    public void chatInvite(@Payload ChatMessage chatMessage, @DestinationVariable String username) {
+        System.out.println("Sending ChatInvite to "+ username + " from " + chatMessage.getSender());
         messagingTemplate.convertAndSend("/friend/"+username, chatMessage);
     }
 

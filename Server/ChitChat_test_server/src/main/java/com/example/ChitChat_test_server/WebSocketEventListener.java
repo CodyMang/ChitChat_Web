@@ -10,10 +10,9 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
+import com.example.ChitChat_test_server.databaseConnection.DatabaseConnector;
 @Component
 public class WebSocketEventListener {
-
     private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
 
     @Autowired
@@ -26,18 +25,20 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
         String username = (String) headerAccessor.getSessionAttributes().get("username");
         String chat_id = (String) headerAccessor.getSessionAttributes().get("chat_id");
+        DatabaseConnector.logoutUser(username);
         if(username != null) {
             logger.info("User Disconnected : " + username);
 
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setType(ChatMessage.MessageType.LEAVE);
             chatMessage.setSender(username);
-            ChatController.activeUsers.remove(username);
-            messagingTemplate.convertAndSend("/channel/" + chat_id, chatMessage);
+            //ChatController.activeUsers.remove(username);
+            messagingTemplate.convertAndSend("/channel/", chatMessage);
         }
     }
 }

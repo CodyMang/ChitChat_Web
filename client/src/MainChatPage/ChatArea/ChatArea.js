@@ -5,6 +5,8 @@ import MessageTile from './MessageTile/MessageTile.js'
 import SockJsClient from 'react-stomp';
 import SideBar from './SideBar/SideBar';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import MemberTile from './MemberTile/MemberTile.js'
+import AddFriendToChat from './AddFriendToChat/AddFriendToChat.js'
 import "./ChatArea.css";
 
 
@@ -17,12 +19,15 @@ class ChatArea extends React.Component {
       user_id: props.user_id,
       chat_id: props.chat_id,
       sendBoxContent: '',
+      addFriendToChatDialog:false,
       messages: [],
       conversations:[],
       topics : [],
-      activeUsers:[],
       unreadChats:[],
       friendList:[[],[]],
+      members:[],
+      chatInvites:[],
+      selectedFile:null,
     };
     console.log(`Chat_id on intialization: ${props.chat_id}`);
     this.keyPressed = this.keyPressed.bind(this);
@@ -60,15 +65,21 @@ class ChatArea extends React.Component {
         } 
       }
       else if (msg.type === "JOIN") {
-          this.setState({
-            activeUsers:msg.users,
-          });
+        let current =[...this.state.members] ;
+        let idx = current.map((elem)=> { return elem.username; }).indexOf(msg.sender);
+        if(idx !== -1)
+        {
+          current[idx].is_active = "1";
+          this.setState({members:current})
+        }     
       }
       else if (msg.type === "LEAVE") {
-        var array = [...this.state.activeUsers]; // make a separate copy of the array
-        var index = array.indexOf(msg.sender)
-        if (index !== -1) {
-          this.setState({activeUsers: array.splice(index, 1)});
+        let current =[...this.state.members] ;
+        let idx = current.map((elem)=> { return elem.username; }).indexOf(msg.sender);
+        if(idx !== -1)
+        {
+          current[idx].is_active = "0";
+          this.setState({members:current})
         }
       }
       else if (msg.type === 'UPDATE') {
@@ -78,19 +89,49 @@ class ChatArea extends React.Component {
           document.getElementById(msg.message_id).innerHTML = msg.content;
         }
       }
-      else if (msg.type === 'RELOAD') {
-        if(msg.content === this.state.username)
-        {
-          this.fetchChatList();
-          this.fetchFriendList();
-          this.getChatMessages();
-        }    
+      else if (msg.type === 'CHAT_INVITE') {
+
+        const result = [...this.state.chatInvites, msg.chat_name]
+        this.setState({chatInvites:result})
       }
       else if (msg.type === 'FRIEND_REQUEST') { 
           this.fetchFriendList();
       }
     }
   }
+
+  sendJoin = async()=> {
+
+    this.clientRef.sendMessage(`/app/chat.addUser/${this.state.chat_id}`,
+      JSON.stringify({ sender: this.state.username, type: 'JOIN' })
+    )
+    try{
+        const response = await fetch("http://localhost:8080/api/goOnline", {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: this.state.user_id,
+                  })
+              });
+            const status = await response.status;
+              if (status === 200) {     
+                this.componentDidMount();
+
+              }
+              else
+              {
+                  alert("ERROR occured is_active")
+              }
+
+    }
+    catch (e)
+    {
+        console.error(e);
+    }
+    
+  }
+
 
   sendMessageClient() {
     let messageHeaders = {
@@ -104,11 +145,7 @@ class ChatArea extends React.Component {
     this.setState({ sendBoxContent: '' });
   }
 
-  sendJoin() {
-    this.clientRef.sendMessage(`/app/chat.addUser/${this.state.chat_id}`,
-      JSON.stringify({ sender: this.state.username, type: 'JOIN' })
-    )
-  }
+
 
   keyPressed=(evnt)=> {
     if (evnt.charCode === 13) {
@@ -142,6 +179,18 @@ class ChatArea extends React.Component {
     )
   }
 
+
+  addFriendToChat = (username) =>
+  {
+    this.clientRef.sendMessage(`/app/chatInvite/${username}`,
+    JSON.stringify({
+      sender: this.state.username,
+      chat_name:this.state.chat_name,
+      type: 'CHAT_INVITE',
+    }));
+    this.setState({addFriendToChatDialog:false});
+    alert("Chat Invite Sent")
+  }
   handleNameChange = (nusername) =>
   {
     this.setState({username:nusername});
@@ -175,11 +224,17 @@ class ChatArea extends React.Component {
       console.error("Could not find friend in friend list")
     }
   }
+  
   deleteFriend = (reject_id) =>
   {
     const newList = [this.state.friendList[0],this.state.friendList[1].filter(id => id.chat_id !== reject_id)];
     this.setState({friendList:newList});
 
+  }
+
+  declineChat = (data)=>
+  {
+    this.setState({chatInvites:this.state.chatInvites.filter(val=>val!==data)})
   }
 
   addUnreadChat = (unread_chat) =>
@@ -202,27 +257,48 @@ class ChatArea extends React.Component {
     const convo = this.state.conversations.map((elem) => (`/channel/${elem.chat_id}`));
     const dm =  this.state.friendList[0].map((elem) => (`/channel/${elem.chat_id}`))
     this.setState(
-      {topics:[...[`/friend/${this.state.username}`].concat(convo.concat(dm))]});
+      {topics:[...[`/friend/${this.state.username}`,'/channel/'].concat(convo.concat(dm))]});
     console.log(this.state.topics);
   }
   fetchChatList = async () =>
   {
+    //Chat Messages
     const response = await fetch('http://localhost:8080/api/conv/'+ this.state.user_id);
     const data = await response.json();
-    console.log(data);
     this.updateConversations(data);
+    //Chat Users
+
   }
 
-
+  onFileChange = (event) =>
+  {
+    this.setState({selectedFile:event.target.files[0],
+                  selectedBoxContent:event.target.files[0].name});
+    console.log(event.target.files[0]);
+  }
   updateConversations(data)
   {
     this.setState({conversations:data})
   }
 
   async getChatMessages() {
+    try{
+
+    
     const response = await fetch('http://localhost:8080/api/chats/' + this.state.chat_id);
     const data = await response.json();
-    this.setState({ messages: data });
+
+    const responseUsers = await fetch('http://localhost:8080/api/chats/users/'+ this.state.chat_id);
+    const memberList = await responseUsers.json();
+    this.setState({  messages: data,members: memberList  });
+    console.log(memberList);
+    console.log(memberList[0].is_active === "1");
+  }
+  catch (e)
+  {
+    console.error(e);
+  }
+    
   }
 
   componentDidMount() {
@@ -256,8 +332,9 @@ class ChatArea extends React.Component {
     else
       return '';
   }
-  render() {
 
+  render() {
+   
     return (
         <div className="chatarea-wrapper">
             <div className="chatarea-container" >
@@ -273,8 +350,11 @@ class ChatArea extends React.Component {
                   acceptFriend = {this.acceptFriend}
                   deleteFriend = {this.deleteFriend}
                   user_id={this.state.user_id}
+                  onNewChat ={this.fetchChatList}
                   sendFriendRequest = {this.handleFriendRequest}
                   unreadChats = {this.state.unreadChats}
+                  chatInvites = {this.state.chatInvites}
+                  declineChat = {this.declineChat}
                 />
                 <div className="message-container-unit">
                     {
@@ -291,16 +371,20 @@ class ChatArea extends React.Component {
                 <div className='current-userlist'>
                     <div className="active-user-list-header">
                         <span>Members</span>
-                        <PersonAddIcon/>
+                        <PersonAddIcon 
+                        className="personAddIcon"
+                        onClick ={()=>this.setState({addFriendToChatDialog:true})}
+                        style={{ fontSize: 32 }} />
+
+                       
                     </div>
 
                     <div className="active-user-container">
 
                     {
-                        /*
-                        this.state.activeUsers.map((elem) => (
-                            <div className="active-user-item">{elem}</div>
-                        ))*/
+                      this.state.members.map(obj => (<MemberTile username={obj.username}
+                      is_active = {obj.is_active === "1"}
+                     />))
                     }
 
                     </div>
@@ -317,8 +401,11 @@ class ChatArea extends React.Component {
                         />
                     </div>
                     <div className="sendButtons">
-                        <AttachFileIcon className="attach" />
-                        <SendIcon className="send" />
+                    <input type="file" id="file-input" ref={ref => {this.fileRef = ref} } onChange={event=>this.onFileChange(event)} accept="application/pdf" />
+                    <AttachFileIcon className="attach" 
+                    onClick ={()=> this.fileRef.click()}/>
+                        <SendIcon className="send" onClick={()=>this.sendMessageClient()}/> 
+                        
                     </div>
                 </div>
                 <SockJsClient url='http://localhost:8080/ws'
@@ -327,6 +414,12 @@ class ChatArea extends React.Component {
                     ref={(client) => { this.clientRef = client }}
                     onConnect={this.sendJoin}
                 />
+                 <AddFriendToChat 
+                        open = {this.state.addFriendToChatDialog}
+                        click = {this.addFriendToChat}
+                
+                        handleClose = {()=>this.setState({addFriendToChatDialog:false})}
+                        />
             </div>
         </div>
     );

@@ -11,10 +11,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("api")
 class MainController {
+
     @CrossOrigin
     @GetMapping("/chats/{chat_id}")
     String chatRequests(@PathVariable String chat_id) {
         return DatabaseConnector.getMessagesFromChat(chat_id);
+    }
+
+    @CrossOrigin
+    @GetMapping("/chats/users/{chat_id}")
+    String userRequestFromChat(@PathVariable String chat_id) {
+        return DatabaseConnector.getUsersFromChat(chat_id);
     }
 
     @CrossOrigin
@@ -224,6 +231,37 @@ class MainController {
     ResponseEntity<String> updateUsername(@RequestBody Map<String,String> allParams) {
         System.out.println("update name");
         String res = DatabaseConnector.updateUsername(allParams.get("user_id"),allParams.get("username"));
+
+        if(res.equals("200"))
+        {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else
+        {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);//Nothing is returned
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/goOnline")
+    ResponseEntity<String> goOnline(@RequestBody Map<String,String> allParams) {
+        System.out.println("Storing active");
+        String res = DatabaseConnector.goOnline(allParams.get("user_id"));
+
+        if(res.equals("200"))
+        {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else
+        {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);//Nothing is returned
+        }
+    }
+    @CrossOrigin
+    @PostMapping("/goOffline")
+    ResponseEntity<String> goOffline(@RequestBody Map<String,String> allParams) {
+        System.out.println("Storing not active");
+        String res = DatabaseConnector.logoutUser(allParams.get("user_id"));
 
         if(res.equals("200"))
         {

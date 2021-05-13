@@ -3,7 +3,7 @@ import logo from './kirby.PNG';
 
 
 export default function ChatTile(props) {
-    console.log(props.unread);
+
     return (
         <div className={`chat-tile-container ${props.focus ? 'focus':''} ${props.unread ? 'unread-chat':''}` }
         onClick={()=>props.click(props.chat_id)}>

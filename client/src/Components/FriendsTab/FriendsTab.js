@@ -1,7 +1,7 @@
 import AddIcon from '@material-ui/icons/Add';
 import FriendTile from "./FriendTile/FriendTile.js";
 import PendingTile from "./PendingTile/PendingTile.js";
-import "./FriendsTab.css";
+import "./FriendsTab.css"
 
 export default function FriendsTab(props) {
 

@@ -59,7 +59,6 @@ export default function SideBar(props) {
         else
             console.log("Switched to Friends tab");
     }, [tab])
-
     return (
         <div className="sidebar-container">
             <div className="tabs-container">
@@ -75,7 +74,11 @@ export default function SideBar(props) {
                     conversations = {props.converstations}
                     click = {props.updateCurrentChat}
                     currentChat = {props.currentChat}
-                    unreadChats = {props.unreadChats}/>
+                    unreadChats = {props.unreadChats}
+                    user_id={props.user_id}
+                    onNewChat={props.onNewChat}
+                    chatInvites = {props.chatInvites}
+                    declineChat = {props.declineChat}/>
                     
                 : <FriendsTab
                     pendingFriends= {props.friendList[1]}
@@ -91,7 +94,8 @@ export default function SideBar(props) {
             <AddFriendDialog open = {addDialogOpen}
             sendRequest = {props.sendFriendRequest}
             handleClose ={()=>setAddOpen(false)} 
-            user_id={props.user_id}/>
+            user_id={props.user_id}
+            />
         </div>
     );
 }

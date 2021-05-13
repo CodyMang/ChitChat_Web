@@ -7,6 +7,7 @@ public class ChatMessage {
     private String chat_id;
     private String sender_id;
     private String message_id;
+    private String chat_name;
     private String [] users = new String[100];
     public enum MessageType {
         CHAT,
@@ -14,7 +15,8 @@ public class ChatMessage {
         LEAVE,
         UPDATE,
         RELOAD,
-        FRIEND_REQUEST
+        FRIEND_REQUEST,
+        CHAT_INVITE
     }
 
     public MessageType getType() {
@@ -41,9 +43,11 @@ public class ChatMessage {
         this.sender = sender;
     }
 
+    public String getChat_name() {return this.chat_name;}
+    public void setChat_name(String chat_name){ this.chat_name = chat_name;}
+
     public String getChat_id() {return this.chat_id;}
     public void setChat_id(String chat_id){ this.chat_id = chat_id;}
-
     public String getSender_id() { return sender_id;}
 
     public void setSender_id(String sender_id) {this.sender_id = sender_id;}
