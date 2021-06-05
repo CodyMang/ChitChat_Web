@@ -9,4 +9,5 @@ A web application for sending messages to friends. Built using Java Spring, Reac
 * User login/Signup
 * Send/Recieve Messages
 * Create chatrooms
+* Add friends
 * Edit/Delete sent messages
