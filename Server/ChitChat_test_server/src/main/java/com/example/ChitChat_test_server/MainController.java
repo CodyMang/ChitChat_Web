@@ -13,9 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Map;
 
 @RestController
@@ -40,7 +37,7 @@ class MainController {
     @CrossOrigin
     @GetMapping("/conv/{user_id}")
     String convRequestByUser(@PathVariable String user_id) {
-        return DatabaseConnector.getChatsbyUser(user_id);
+        return DatabaseConnector.getChatsByUser(user_id);
     }
 
 

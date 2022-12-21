@@ -1,4 +1,7 @@
-create database ChitChat_DB;
+DROP DATABASE IF EXISTS ChitChat_DB;
+CREATE DATABASE ChitChat_DB;
+USE ChitChat_DB;
+
 
 CREATE TABLE users (
   user_id int NOT NULL auto_increment,
@@ -11,15 +14,6 @@ CREATE TABLE users (
   PRIMARY KEY(user_id)
 );
 
-CREATE TABLE Friends (
-	chat_id bigint unsigned PRIMARY KEY,
-	user_id1 int not NULL,
-    user_id2 int not NULL,
-    confirmed boolean DEFAULT false,
-    foreign key (chat_id) REFERENCES chats(chat_id),
-	FOREIGN KEY (user_id1) REFERENCES users(user_id),
-    FOREIGN KEY (user_id2) REFERENCES users(user_id)
-);
 
 CREATE TABLE chats (
   chat_id bigint unsigned auto_increment,
@@ -28,12 +22,24 @@ CREATE TABLE chats (
   PRIMARY KEY(chat_id)
 );
 
+
 CREATE TABLE group_users (
   chat_id bigint unsigned,
   user_id int,
   PRIMARY KEY (chat_id, user_id),
   FOREIGN KEY (chat_id) REFERENCES chats(chat_id),
   FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+
+CREATE TABLE friends (
+	chat_id bigint unsigned PRIMARY KEY,
+    user_id1 int not NULL,
+    user_id2 int not NULL,
+    confirmed boolean DEFAULT false,
+    foreign key (chat_id) REFERENCES chats(chat_id),
+	FOREIGN KEY (user_id1) REFERENCES users(user_id),
+    FOREIGN KEY (user_id2) REFERENCES users(user_id)
 );
 
 
@@ -48,22 +54,14 @@ CREATE TABLE message (
   FOREIGN KEY (user_id) REFERENCES users (user_id)    
 );  
 
-CREATE TABLE Files(
+
+CREATE TABLE files(
 	id int PRIMARY KEY,
-	#message_id bigint unsigned not null,
+	message_id bigint unsigned not null,
 	file_name Varchar(100) not null,
     file_type varchar(15) not null,
     data blob not null,
     FOREIGN KEY (message_id) REFERENCES message(message_id)
-);
-
-CREATE TABLE Files(
-	id VARCHAR(100) PRIMARY KEY,
-	#message_id bigint unsigned not null,
-	fileName Varchar(100),
-    fileType varchar(100),
-    data blob not null
-    #FOREIGN KEY (message_id) REFERENCES message(message_id)
 );
 
 
@@ -77,13 +75,12 @@ CREATE TABLE notifications (
   FOREIGN KEY (notification_reciever) REFERENCES users (user_id)    
 );  
 
-drop trigger create_chat;
 delimiter $$
 CREATE TRIGGER create_chat BEFORE INSERT ON friends
 FOR EACH ROW
        BEGIN
            insert into chats set size = 2, chat_name = SUBSTRING(MD5(RAND()) FROM 1 FOR 20);
-		   SET NEW.chat_id = (SELECT MAX(chat_id) from chats);
+                   SET NEW.chat_id = (SELECT MAX(chat_id) from chats);
        END;$$
 delimiter ;
 
@@ -96,3 +93,5 @@ FOR EACH ROW
            DELETE FROM message WHERE chat_id = old.chat_id;
        END;$$
 delimiter ;
+
+

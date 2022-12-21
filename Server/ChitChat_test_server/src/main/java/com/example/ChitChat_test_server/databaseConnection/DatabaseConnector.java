@@ -5,14 +5,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
 
 public class DatabaseConnector {
-    private static String dbusername = "root";
-    private static String dbpass = "1234";
-    private static String url = "jdbc:mysql://localhost:3306/Chitchat_db";
+    private static final String dbusername = "root";
+    private static final String dbpass = "1234";
+    private static final String url = "jdbc:mysql://localhost:3306/ChitChat_DB";
 
     public static void storeMessage(String messageContent, String user_id, String chat_id,String message_type) {
         try {
 
-            Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             String query = "INSERT INTO message (user_id,chat_id,content,message_type)"
@@ -33,7 +32,6 @@ public class DatabaseConnector {
 
     public static String getMessagesFromChat(String chat_id) {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             String query = "SELECT U.username, M.content, M.message_id, M.message_type " +
@@ -67,7 +65,6 @@ public class DatabaseConnector {
 
     public static String getUsersFromChat(String chat_id) {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             String query = "SELECT U.username, U.user_id, U.is_active " +
@@ -96,9 +93,8 @@ public class DatabaseConnector {
         return "[]";
     }
 
-    public static String getChatsbyUser(String user_id) {
+    public static String getChatsByUser(String user_id) {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             String query = "SELECT C.chat_name, C.chat_id " +
@@ -130,7 +126,7 @@ public class DatabaseConnector {
 
     public static String getChatIDByChatName(String chat_name) {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             String query = "SELECT chat_id from chats WHERE chat_name = ?";
@@ -154,7 +150,7 @@ public class DatabaseConnector {
         //For Login Purposes
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+
             Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement check = con.prepareStatement("SELECT "
@@ -311,9 +307,8 @@ public class DatabaseConnector {
     {
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
+
 
             PreparedStatement stmt = con.prepareStatement("UPDATE users SET pass= ?  WHERE username= ?");
             stmt.setString(1,pass);
@@ -339,10 +334,7 @@ public class DatabaseConnector {
     {
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
-            //here Chitchat_db is database name, root is username and password
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("SELECT * FROM users WHERE username= ? and email= ?");
             stmt.setString(1,userName);
@@ -359,7 +351,7 @@ public class DatabaseConnector {
         }
         catch(Exception e)
         {
-            System.err.println("SQL Database:UserExists Error");
+            System.err.println("SQL Database: UserExists Error");
             e.printStackTrace();
         }
         return false;
@@ -370,9 +362,7 @@ public class DatabaseConnector {
         System.out.println("DELETING ID: "+message_id );
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("DELETE FROM message WHERE message_id = ?");
             stmt.setString(1,message_id);
@@ -395,9 +385,7 @@ public class DatabaseConnector {
         System.out.println("UPDATING MESSAGE ID: "+message_id+ " to new content " +content);
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("UPDATE message " +
                     "SET content = ? " +
@@ -426,10 +414,7 @@ public class DatabaseConnector {
         
         try
         {
-
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement check = con.prepareStatement("select username from friends as F, users as U "
             +"where U.username = ? AND (F.user_id1 = U.user_id"
@@ -470,12 +455,10 @@ public class DatabaseConnector {
 
     public static String getFriends(String user_id)
     {
-        System.out.println("Getting friends of "+user_id);
+        System.out.println("Getting friends of " + user_id);
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("Select F.chat_id, U.username from friends as F, users as U Where"
            +"(F.user_id1 = ? OR F.user_id2 = ?) AND (U.user_id = F.user_id2 OR U.user_id = F.user_id1)"
@@ -528,9 +511,7 @@ public class DatabaseConnector {
     {
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("UPDATE friends SET confirmed = true where chat_id = ?;");
             
@@ -554,9 +535,7 @@ public class DatabaseConnector {
     {
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("DELETE FROM friends WHERE chat_id = ?;");
             // The SQL trigger should delete chat_id from all related tables
@@ -581,9 +560,7 @@ public class DatabaseConnector {
         
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("UPDATE users SET username = ? where user_id = ?;");
             // The SQL trigger should delete chat_id from all related tables
@@ -607,9 +584,7 @@ public class DatabaseConnector {
     {
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("UPDATE users SET is_active = 1 where user_id = ?;");
             // The SQL trigger should delete chat_id from all related table
@@ -631,9 +606,7 @@ public class DatabaseConnector {
     {
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Chitchat_db","root","1234");
+            Connection con = DriverManager.getConnection(url, dbusername, dbpass);
 
             PreparedStatement stmt = con.prepareStatement("UPDATE users SET is_active = 0 where username = ?;");
             // The SQL trigger should delete chat_id from all related table
